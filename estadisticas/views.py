@@ -72,12 +72,16 @@ def datos_grafico_ajax(request):
 
 @login_required
 def exportar_reporte(request):
-    """Exportar reportes en diferentes formatos"""
+    """Exportar reportes en diferentes formatos - MEJORADO CON HEADERS"""
     if request.method == 'POST':
         formato = request.POST.get('formato', 'PDF')
         tipo_reporte = request.POST.get('tipo_reporte', 'MENSUAL')
         fecha_inicio = request.POST.get('fecha_inicio')
         fecha_fin = request.POST.get('fecha_fin')
+        
+        # Limpiar valores vacíos
+        fecha_inicio = fecha_inicio if fecha_inicio else None
+        fecha_fin = fecha_fin if fecha_fin else None
         
         try:
             # Generar reporte
@@ -85,11 +89,22 @@ def exportar_reporte(request):
                 request.user, formato, tipo_reporte, fecha_inicio, fecha_fin
             )
             
+            # Crear respuesta HTTP con headers correctos
+            response = HttpResponse(
+                reporte['contenido'], 
+                content_type=reporte['content_type']
+            )
+            
+            # Agregar header de descarga
+            if 'filename' in reporte:
+                response['Content-Disposition'] = reporte['filename']
+            
             messages.success(request, f'Reporte {formato} generado correctamente.')
-            return HttpResponse(reporte['contenido'], content_type=reporte['content_type'])
+            return response
             
         except Exception as e:
             messages.error(request, f'Error al generar reporte: {str(e)}')
+            print(f"❌ Error generando reporte: {e}")
     
     return redirect('estadisticas:estadisticas')
 
@@ -585,29 +600,63 @@ def generar_estadisticas_usuario(usuario):
     )
 
 def generar_reporte_export(usuario, formato, tipo_reporte, fecha_inicio, fecha_fin):
-    """Genera reporte para exportación"""
-    # Validar fechas
-    if fecha_inicio and fecha_fin:
-        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
-        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+    """Genera reporte para exportación - CORREGIDO PARA EXPORTAR TODOS LOS GASTOS"""
+    
+    # NUEVA LÓGICA: Sin fechas específicas = TODOS los gastos
+    if not fecha_inicio and not fecha_fin:
+        # Obtener todos los gastos del usuario para determinar el rango completo
+        todos_los_gastos = Gasto.objects.filter(id_usuario=usuario).order_by('fecha')
+        
+        if todos_los_gastos.exists():
+            fecha_inicio = todos_los_gastos.first().fecha
+            fecha_fin = todos_los_gastos.last().fecha
+            print(f"📊 Exportando TODOS los gastos: {fecha_inicio} a {fecha_fin}")
+        else:
+            # Si no hay gastos, usar fechas por defecto
+            hoy = timezone.now().date()
+            fecha_inicio = hoy - timedelta(days=30)
+            fecha_fin = hoy
+            print("⚠️ No hay gastos registrados, usando fechas por defecto")
+    
+    # Validar y convertir fechas si vienen como string
+    elif fecha_inicio and fecha_fin:
+        if isinstance(fecha_inicio, str):
+            fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+        if isinstance(fecha_fin, str):
+            fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+        print(f"📅 Exportando rango específico: {fecha_inicio} a {fecha_fin}")
+    
+    # Aplicar fechas automáticas según tipo de reporte
     else:
         hoy = timezone.now().date()
         if tipo_reporte == 'MENSUAL':
             fecha_inicio = datetime(hoy.year, hoy.month, 1).date()
             fecha_fin = hoy
+            print(f"📅 Reporte mensual: {fecha_inicio} a {fecha_fin}")
         elif tipo_reporte == 'ANUAL':
             fecha_inicio = datetime(hoy.year, 1, 1).date()
             fecha_fin = hoy
-        else:  # PERSONALIZADO
-            fecha_fin = hoy
-            fecha_inicio = hoy - timedelta(days=30)
+            print(f"📅 Reporte anual: {fecha_inicio} a {fecha_fin}")
+        else:  # PERSONALIZADO sin fechas específicas
+            # Para personalizado sin fechas, exportar todos los gastos
+            todos_los_gastos = Gasto.objects.filter(id_usuario=usuario).order_by('fecha')
+            if todos_los_gastos.exists():
+                fecha_inicio = todos_los_gastos.first().fecha
+                fecha_fin = todos_los_gastos.last().fecha
+                print(f"📊 Personalizado - TODOS los gastos: {fecha_inicio} a {fecha_fin}")
+            else:
+                fecha_fin = hoy
+                fecha_inicio = hoy - timedelta(days=30)
+                print("⚠️ Personalizado sin gastos, usando últimos 30 días")
     
-    # Obtener datos
+    # Obtener datos con el rango de fechas determinado
     gastos = Gasto.objects.filter(
         id_usuario=usuario,
         fecha__gte=fecha_inicio,
         fecha__lte=fecha_fin
     ).order_by('-fecha')
+    
+    print(f"💰 Gastos encontrados en el rango: {gastos.count()}")
     
     # Crear reporte en BD
     reporte = Reporte.objects.create(
@@ -622,16 +671,20 @@ def generar_reporte_export(usuario, formato, tipo_reporte, fecha_inicio, fecha_f
     if formato == 'CSV':
         contenido = generar_csv(gastos)
         content_type = 'text/csv'
+        filename = f'attachment; filename="gastos_{fecha_inicio}_{fecha_fin}.csv"'
     elif formato == 'PDF':
         contenido = generar_pdf_simple(gastos, fecha_inicio, fecha_fin)
         content_type = 'application/pdf'
+        filename = f'attachment; filename="gastos_{fecha_inicio}_{fecha_fin}.pdf"'
     else:  # EXCEL por defecto
-        contenido = generar_excel_simple(gastos)
-        content_type = 'application/vnd.ms-excel'
+        contenido = generar_excel_simple(gastos, fecha_inicio, fecha_fin)
+        content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        filename = f'attachment; filename="gastos_{fecha_inicio}_{fecha_fin}.xlsx"'
     
     return {
         'contenido': contenido,
-        'content_type': content_type
+        'content_type': content_type,
+        'filename': filename
     }
 
 def generar_csv(gastos):
@@ -705,42 +758,73 @@ def generar_pdf_simple(gastos, fecha_inicio, fecha_fin):
     p.save()
     return buffer.getvalue()
 
-def generar_excel_simple(gastos):
-    """Genera reporte en formato Excel simple"""
+def generar_excel_simple(gastos, fecha_inicio=None, fecha_fin=None):
+    """Genera reporte en formato Excel simple - MEJORADO"""
     import openpyxl
-    from openpyxl.styles import Font, PatternFill
+    from openpyxl.styles import Font, PatternFill, Alignment
     import io
     
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Reporte de Gastos"
     
+    # Título principal
+    ws.merge_cells('A1:E1')
+    title_cell = ws['A1']
+    title_cell.value = "SmartPocket - Reporte de Gastos"
+    title_cell.font = Font(bold=True, size=16)
+    title_cell.alignment = Alignment(horizontal='center')
+    
+    # Período
+    if fecha_inicio and fecha_fin:
+        ws.merge_cells('A2:E2')
+        period_cell = ws['A2']
+        period_cell.value = f"Período: {fecha_inicio.strftime('%d/%m/%Y')} - {fecha_fin.strftime('%d/%m/%Y')}"
+        period_cell.font = Font(size=12)
+        period_cell.alignment = Alignment(horizontal='center')
+        header_row = 4
+    else:
+        header_row = 3
+    
     # Encabezados
-    headers = ['Fecha', 'Categoría', 'Descripción', 'Monto (S/.)']
+    headers = ['Fecha', 'Categoría', 'Descripción', 'Monto (S/.)', 'Total Acumulado']
     for col, header in enumerate(headers, 1):
-        cell = ws.cell(row=1, column=col, value=header)
-        cell.font = Font(bold=True)
-        cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+        cell = ws.cell(row=header_row, column=col, value=header)
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="667EEA", end_color="667EEA", fill_type="solid")
+        cell.alignment = Alignment(horizontal='center')
     
     # Datos
-    for row, gasto in enumerate(gastos, 2):
-        ws.cell(row=row, column=1, value=gasto.fecha.strftime('%d/%m/%Y'))
-        ws.cell(row=row, column=2, value=gasto.tipo_gasto.get_nombre_display())
-        ws.cell(row=row, column=3, value=gasto.descripcion)
-        ws.cell(row=row, column=4, value=float(gasto.monto))
+    total_acumulado = 0
+    data_row = header_row + 1
+    
+    for gasto in gastos:
+        total_acumulado += float(gasto.monto)
+        
+        ws.cell(row=data_row, column=1, value=gasto.fecha.strftime('%d/%m/%Y'))
+        ws.cell(row=data_row, column=2, value=gasto.tipo_gasto.get_nombre_display())
+        ws.cell(row=data_row, column=3, value=gasto.descripcion)
+        ws.cell(row=data_row, column=4, value=float(gasto.monto))
+        ws.cell(row=data_row, column=5, value=total_acumulado)
+        
+        data_row += 1
+    
+    # Total final
+    total_row = data_row + 1
+    ws.merge_cells(f'A{total_row}:C{total_row}')
+    total_label = ws[f'A{total_row}']
+    total_label.value = "TOTAL GENERAL:"
+    total_label.font = Font(bold=True, size=14)
+    total_label.alignment = Alignment(horizontal='right')
+    
+    total_value = ws[f'D{total_row}']
+    total_value.value = total_acumulado
+    total_value.font = Font(bold=True, size=14, color="FF0000")
     
     # Ajustar ancho de columnas
-    for column in ws.columns:
-        max_length = 0
-        column_letter = column[0].column_letter
-        for cell in column:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        adjusted_width = min(max_length + 2, 50)
-        ws.column_dimensions[column_letter].width = adjusted_width
+    column_widths = {'A': 12, 'B': 18, 'C': 25, 'D': 15, 'E': 18}
+    for column, width in column_widths.items():
+        ws.column_dimensions[column].width = width
     
     # Guardar en buffer
     buffer = io.BytesIO()
