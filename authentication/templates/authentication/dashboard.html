@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - SmartPocket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efectos de fondo sutiles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header sofisticado */
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 8px;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .welcome-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        /* Navegación sofisticada */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 14px 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-radius: 16px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-tab:hover:not(.active) {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Banner de bienvenida */
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        /* Cards de resumen financiero */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .summary-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .summary-icon.expenses { background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); }
+        .summary-icon.budget { background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); }
+        .summary-icon.savings { background: linear-gradient(135deg, #45b7d1 0%, #96c93d 100%); }
+        .summary-icon.categories { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+
+        .summary-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .summary-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Grid principal del dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Cards sofisticadas */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Actividad reciente */
+        .activity-list {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2px;
+        }
+
+        .activity-subtitle {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .activity-amount {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ff6b6b;
+        }
+
+        /* Estadísticas rápidas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        /* Gráfico circular simple */
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .pie-chart {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #667eea 0deg 120deg,
+                #764ba2 120deg 200deg,
+                #ff6b6b 200deg 280deg,
+                rgba(255,255,255,0.1) 280deg 360deg
+            );
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .pie-chart:hover {
+            transform: scale(1.05);
+        }
+
+        /* Mensajes */
+        .message {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .message.success {
+            border-color: rgba(40, 167, 69, 0.3);
+            background: rgba(40, 167, 69, 0.1);
+            color: #d4edda;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .nav-tab {
+                flex: none;
+                font-size: 12px;
+                padding: 10px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header sofisticado -->
+        <div class="header">
+            <div class="brand-title">
+                <div class="brand-icon">💼</div>
+                SmartPocket
+            </div>
+            <div class="user-info">
+                <div class="welcome-text">
+                    Bienvenido, <strong>{{ user.first_name|default:user.username }}</strong>
+                </div>
+                <a href="{% url 'authentication:logout' %}" class="logout-btn">Cerrar Sesión</a>
+            </div>
+        </div>
+        
+        <!-- Navegación sofisticada -->
+        <div class="nav-tabs">
+            <a href="{% url 'authentication:dashboard' %}" class="nav-tab active">🏠 Inicio</a>
+            <a href="{% url 'recomendaciones:recomendaciones' %}" class="nav-tab">💡 Recomendaciones</a>
+            <a href="{% url 'estadisticas:estadisticas' %}" class="nav-tab">📊 Estadística</a>
+            <a href="{% url 'presupuestos:presupuestos' %}" class="nav-tab">🎯 Presupuesto</a>
+            <a href="{% url 'gastos:gastos' %}" class="nav-tab">💰 Gastos</a>
+            <a href="{% url 'authentication:perfil' %}" class="nav-tab">👤 Perfil</a>
+        </div>
+        
+        <!-- Mensajes -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags == 'success' %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Banner de bienvenida -->
+        <div class="welcome-banner">
+            <div class="welcome-title">¡Bienvenido a SmartPocket!</div>
+            <div class="welcome-subtitle">Tu centro de control financiero personal</div>
+        </div>
+        
+        <!-- Cards de resumen financiero -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <div class="summary-icon expenses">💸</div>
+                    <div class="summary-title">Gastos del Mes</div>
+                </div>
+                <div class="summary-value">S/. 1,247.50</div>
+                <div class="summary-subtitle">+15% vs mes anterior</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-header">
+                    <div class="summary-icon budget">🎯</div>
+                    <div class="summary-title">Presupuesto Restante</div>
+                </div>
+                <div class="summary-value">S/. 752.50</div>
+                <div class="summary-subtitle">37% del presupuesto</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-header">
+                    <div class="summary-icon savings">💰</div>
+                    <div class="summary-title">Ahorros Potenciales</div>
+                </div>
+                <div class="summary-value">S/. 245.00</div>
+                <div class="summary-subtitle">Basado en patrones</div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-header">
+                    <div class="summary-icon categories">📊</div>
+                    <div class="summary-title">Categorías Activas</div>
+                </div>
+                <div class="summary-value">6</div>
+                <div class="summary-subtitle">Comida es la principal</div>
+            </div>
+        </div>
+        
+        <!-- Grid principal del dashboard -->
+        <div class="dashboard-grid">
+            <!-- Resumen visual -->
+            <div class="glass-card">
+                <div class="card-title">📊 Resumen Financiero</div>
+                
+                <div class="chart-container">
+                    <div class="pie-chart"></div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">15</div>
+                        <div class="stat-label">Gastos este mes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Presupuestos activos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">68%</div>
+                        <div class="stat-label">Del presupuesto usado</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">S/. 82</div>
+                        <div class="stat-label">Promedio diario</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actividad reciente -->
+            <div class="glass-card">
+                <div class="card-title">📈 Actividad Reciente</div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">🍽️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Almuerzo universitario</div>
+                            <div class="activity-subtitle">Hace 2 horas · Comida</div>
+                        </div>
+                        <div class="activity-amount">-S/. 18.00</div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, #007bff, #6610f2);">🚗</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Taxi a casa</div>
+                            <div class="activity-subtitle">Ayer · Transporte</div>
+                        </div>
+                        <div class="activity-amount">-S/. 8.50</div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, #dc3545, #e83e8c);">🎮</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Recarga videojuego</div>
+                            <div class="activity-subtitle">Ayer · Entretenimiento</div>
+                        </div>
+                        <div class="activity-amount">-S/. 15.00</div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, #6f42c1, #e83e8c);">📚</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Copias e impresiones</div>
+                            <div class="activity-subtitle">Hace 2 días · Educación</div>
+                        </div>
+                        <div class="activity-amount">-S/. 4.50</div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, #20c997, #17a2b8);">💻</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Plan de datos móviles</div>
+                            <div class="activity-subtitle">Hace 3 días · Internet</div>
+                        </div>
+                        <div class="activity-amount">-S/. 25.00</div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, #fd7e14, #ffc107);">✈️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Pasaje de bus</div>
+                            <div class="activity-subtitle">Hace 4 días · Viajes</div>
+                        </div>
+                        <div class="activity-amount">-S/. 12.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

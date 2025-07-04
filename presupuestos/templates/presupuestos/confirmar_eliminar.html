@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Presupuesto - SmartPocket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .delete-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .delete-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+
+        .delete-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        .delete-message {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .presupuesto-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .presupuesto-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .presupuesto-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .detail-value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .warning-text {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="delete-container">
+        <a href="{% url 'presupuestos:presupuestos' %}" class="back-link">← Volver a Presupuestos</a>
+        
+        <div class="delete-icon">🗑️</div>
+        <div class="delete-title">Confirmar Eliminación</div>
+        
+        <div class="delete-message">
+            ¿Estás seguro de que deseas eliminar este presupuesto?
+        </div>
+        
+        <div class="presupuesto-info">
+            <div class="presupuesto-detail">
+                <span class="detail-label">Categoría:</span>
+                <span class="detail-value">{{ presupuesto.categoria.get_nombre_display }}</span>
+            </div>
+            <div class="presupuesto-detail">
+                <span class="detail-label">Monto Máximo:</span>
+                <span class="detail-value">S/. {{ presupuesto.monto_maximo }}</span>
+            </div>
+            <div class="presupuesto-detail">
+                <span class="detail-label">Período:</span>
+                <span class="detail-value">{{ presupuesto.fecha_inicio|date:"d/m/Y" }} - {{ presupuesto.fecha_fin|date:"d/m/Y" }}</span>
+            </div>
+            <div class="presupuesto-detail">
+                <span class="detail-label">Estado:</span>
+                <span class="detail-value">{% if presupuesto.activo %}Activo{% else %}Inactivo{% endif %}</span>
+            </div>
+        </div>
+        
+        <div class="warning-text">
+            ⚠️ Esta acción no se puede deshacer. Todos los datos del presupuesto se perderán permanentemente.
+        </div>
+        
+        <div class="button-group">
+            <form method="post" style="flex: 1;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">🗑️ Sí, Eliminar</button>
+            </form>
+            <a href="{% url 'presupuestos:presupuestos' %}" class="btn btn-secondary">❌ Cancelar</a>
+        </div>
+    </div>
+</body>
+</html>

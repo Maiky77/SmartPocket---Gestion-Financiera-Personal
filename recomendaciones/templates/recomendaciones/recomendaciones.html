@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recomendaciones IA - SmartPocket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efectos de fondo sutiles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header sofisticado */
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 8px;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        /* Navegación sofisticada */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 14px 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-radius: 16px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-tab:hover:not(.active) {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Cards sofisticadas */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dashboard de estadísticas */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Recomendaciones */
+        .recommendation-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-critica {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .priority-alta {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .priority-media {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .priority-baja {
+            background: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+
+        .recommendation-content {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .recommendation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .recommendation-stat {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 2px;
+        }
+
+        .stat-text {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recommendation-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-aplicar {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-descartar {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Controles superiores */
+        .controls-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .controls-left h2 {
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .controls-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .controls-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Mensaje cuando no hay datos */
+        .no-data-message {
+            text-align: center;
+            padding: 60px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .no-data-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .no-data-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .no-data-subtitle {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* Mensajes */
+        .message {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .message.success {
+            border-color: rgba(40, 167, 69, 0.3);
+            background: rgba(40, 167, 69, 0.1);
+            color: #d4edda;
+        }
+
+        .message.info {
+            border-color: rgba(23, 162, 184, 0.3);
+            background: rgba(23, 162, 184, 0.1);
+            color: #d1ecf1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-section {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .controls-right {
+                justify-content: center;
+            }
+            
+            .recommendation-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .nav-tab {
+                flex: none;
+                font-size: 12px;
+                padding: 10px 16px;
+            }
+        }
+
+        /* Colores específicos por tipo de recomendación */
+        .recommendation-card.type-reducir_gasto .recommendation-title { color: #ff6b6b; }
+        .recommendation-card.type-patron_temporal .recommendation-title { color: #4ecdc4; }
+        .recommendation-card.type-meta_ahorro .recommendation-title { color: #45b7d1; }
+        .recommendation-card.type-comparativa .recommendation-title { color: #f093fb; }
+        .recommendation-card.type-alerta_limite .recommendation-title { color: #ff9f43; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header sofisticado -->
+        <div class="header">
+            <div class="brand-title">
+                <div class="brand-icon">💼</div>
+                SmartPocket
+            </div>
+            <a href="{% url 'authentication:logout' %}" class="logout-btn">Cerrar Sesión</a>
+        </div>
+        
+        <!-- Navegación sofisticada -->
+        <div class="nav-tabs">
+            <a href="{% url 'authentication:dashboard' %}" class="nav-tab">🏠 Inicio</a>
+            <a href="{% url 'recomendaciones:recomendaciones' %}" class="nav-tab active">💡 Recomendaciones</a>
+            <a href="{% url 'estadisticas:estadisticas' %}" class="nav-tab">📊 Estadística</a>
+            <a href="{% url 'presupuestos:presupuestos' %}" class="nav-tab">🎯 Presupuesto</a>
+            <a href="{% url 'gastos:gastos' %}" class="nav-tab">💰 Gastos</a>
+            <a href="{% url 'authentication:perfil' %}" class="nav-tab">👤 Perfil</a>
+        </div>
+        
+        <!-- Mensajes -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if message.tags == 'success' %}success{% elif message.tags == 'info' %}info{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Controles superiores -->
+        <div class="controls-section">
+            <div class="controls-left">
+                <h2>🤖 Recomendaciones Inteligentes</h2>
+                <div class="controls-subtitle">
+                    Análisis personalizado basado en tus patrones de gasto
+                </div>
+            </div>
+            <div class="controls-right">
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" name="generar_recomendaciones" value="1" class="control-btn">
+                        🔄 Actualizar Recomendaciones
+                    </button>
+                </form>
+                <a href="{% url 'recomendaciones:analisis_patrones' %}" class="control-btn secondary">
+                    📊 Ver Patrones
+                </a>
+            </div>
+        </div>
+        
+        <!-- Dashboard de estadísticas -->
+        {% if estadisticas.tiene_datos_suficientes %}
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value">S/. {{ estadisticas.total_30_dias|floatformat:2 }}</div>
+                <div class="stat-label">Gastos Últimos 30 Días</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value">{{ estadisticas.transacciones_30_dias }}</div>
+                <div class="stat-label">Transacciones</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value">{{ estadisticas.categoria_principal|default:"N/A" }}</div>
+                <div class="stat-label">Categoría Principal</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💡</div>
+                <div class="stat-value">{{ recomendaciones_count.total }}</div>
+                <div class="stat-label">Recomendaciones Activas</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Lista de recomendaciones -->
+        {% if recomendaciones %}
+            {% for recomendacion in recomendaciones %}
+            <div class="recommendation-card type-{{ recomendacion.tipo_recomendacion.nombre|lower }}">
+                <div class="recommendation-header">
+                    <div>
+                        <div class="recommendation-title">
+                            {% if recomendacion.tipo_recomendacion.nombre == 'REDUCIR_GASTO' %}🔻
+                            {% elif recomendacion.tipo_recomendacion.nombre == 'PATRON_TEMPORAL' %}⏰
+                            {% elif recomendacion.tipo_recomendacion.nombre == 'META_AHORRO' %}🎯
+                            {% elif recomendacion.tipo_recomendacion.nombre == 'COMPARATIVA' %}📊
+                            {% elif recomendacion.tipo_recomendacion.nombre == 'ALERTA_LIMITE' %}⚠️
+                            {% else %}💡
+                            {% endif %}
+                            {{ recomendacion.titulo }}
+                        </div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.6);">
+                            {{ recomendacion.fecha_generacion|date:"d/m/Y H:i" }}
+                            {% if recomendacion.categoria_relacionada %}
+                            · {{ recomendacion.categoria_relacionada.get_nombre_display }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <span class="priority-badge priority-{{ recomendacion.prioridad|lower }}">
+                        {{ recomendacion.get_prioridad_display }}
+                    </span>
+                </div>
+                
+                <div class="recommendation-content">
+                    {{ recomendacion.mensaje }}
+                </div>
+                
+                {% if recomendacion.valor_actual or recomendacion.ahorro_potencial %}
+                <div class="recommendation-stats">
+                    {% if recomendacion.valor_actual %}
+                    <div class="recommendation-stat">
+                        <div class="stat-number">S/. {{ recomendacion.valor_actual|floatformat:2 }}</div>
+                        <div class="stat-text">Actual</div>
+                    </div>
+                    {% endif %}
+                    {% if recomendacion.valor_objetivo %}
+                    <div class="recommendation-stat">
+                        <div class="stat-number">S/. {{ recomendacion.valor_objetivo|floatformat:2 }}</div>
+                        <div class="stat-text">Objetivo</div>
+                    </div>
+                    {% endif %}
+                    {% if recomendacion.ahorro_potencial %}
+                    <div class="recommendation-stat">
+                        <div class="stat-number">S/. {{ recomendacion.ahorro_potencial|floatformat:2 }}</div>
+                        <div class="stat-text">Ahorro Potencial</div>
+                    </div>
+                    {% endif %}
+                    {% if recomendacion.porcentaje_impacto %}
+                    <div class="recommendation-stat">
+                        <div class="stat-number">{{ recomendacion.porcentaje_impacto|floatformat:1 }}%</div>
+                        <div class="stat-text">Impacto</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="recommendation-actions">
+                    <button onclick="marcarAplicada({{ recomendacion.id_recomendacion }})" class="action-btn btn-aplicar">
+                        ✅ Aplicar
+                    </button>
+                    <a href="{% url 'recomendaciones:descartar_recomendacion' recomendacion.id_recomendacion %}" 
+                       class="action-btn btn-descartar" onclick="return confirm('¿Descartar esta recomendación?')">
+                        ❌ Descartar
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% elif not tiene_gastos_suficientes %}
+            <div class="no-data-message">
+                <div class="no-data-icon">📊</div>
+                <div class="no-data-title">Necesitas más datos para generar recomendaciones</div>
+                <div class="no-data-subtitle">
+                    Para generar recomendaciones personalizadas, necesitas al menos 5 gastos registrados.<br>
+                    ¡Comienza registrando tus gastos diarios para obtener insights inteligentes!
+                </div>
+                <a href="{% url 'gastos:gastos' %}" class="control-btn">
+                    💰 Registrar Gastos
+                </a>
+            </div>
+        {% else %}
+            <div class="no-data-message">
+                <div class="no-data-icon">🤖</div>
+                <div class="no-data-title">No hay recomendaciones disponibles</div>
+                <div class="no-data-subtitle">
+                    El sistema está analizando tus patrones de gasto.<br>
+                    Haz clic en "Actualizar Recomendaciones" para generar nuevas sugerencias.
+                </div>
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" name="generar_recomendaciones" value="1" class="control-btn">
+                        🔄 Generar Recomendaciones
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function marcarAplicada(recomendacionId) {
+            fetch(`/recomendaciones/ajax/aplicada/${recomendacionId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recargar la página para mostrar el mensaje de éxito
+                    location.reload();
+                } else {
+                    alert('Error al marcar la recomendación como aplicada');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            });
+        }
+        
+        // Marcar recomendaciones como vistas al hacer scroll
+        function marcarVista(recomendacionId) {
+            fetch(`/recomendaciones/ajax/vista/${recomendacionId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+            });
+        }
+        
+        // Observer para marcar como vistas
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const recomendacionId = entry.target.dataset.recomendacionId;
+                    if (recomendacionId) {
+                        marcarVista(recomendacionId);
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        // Observar todas las tarjetas de recomendación
+        document.querySelectorAll('.recommendation-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
