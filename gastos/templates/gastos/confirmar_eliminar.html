@@ -1,36 +1,269 @@
-<!-- gastos/templates/gastos/confirmar_eliminar.html -->
-{% extends 'authentication/base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Gasto - SmartPocket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block title %}Eliminar Gasto - SmartPocket{% endblock %}
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-{% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h4>🗑️ Confirmar Eliminación</h4>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-warning">
-                        <strong>¿Estás seguro de que deseas eliminar este gasto?</strong>
-                    </div>
-                    
-                    <div class="bg-light p-3 rounded mb-3">
-                        <p><strong>Fecha:</strong> {{ gasto.fecha|date:"d/m/Y" }}</p>
-                        <p><strong>Categoría:</strong> {{ gasto.tipo_gasto.get_nombre_display }}</p>
-                        <p><strong>Descripción:</strong> {{ gasto.descripcion }}</p>
-                        <p><strong>Monto:</strong> S/. {{ gasto.monto|floatformat:2 }}</p>
-                    </div>
-                    
-                    <form method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
-                    </form>
-                    <a href="{% url 'gastos:gastos' %}" class="btn btn-secondary">Cancelar</a>
-                </div>
+        .delete-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .delete-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .delete-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        .delete-message {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .gasto-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff6b6b;
+            text-align: left;
+        }
+
+        .gasto-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .gasto-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .detail-value.amount {
+            color: #ff6b6b;
+            font-size: 16px;
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .cat-COMIDA { background: linear-gradient(135deg, #28a745, #20c997); }
+        .cat-TRANSPORTE { background: linear-gradient(135deg, #007bff, #6610f2); }
+        .cat-ENTRETENIMIENTO { background: linear-gradient(135deg, #dc3545, #e83e8c); }
+        .cat-EDUCACION { background: linear-gradient(135deg, #6f42c1, #e83e8c); }
+        .cat-INTERNET { background: linear-gradient(135deg, #20c997, #17a2b8); }
+        .cat-VIAJES { background: linear-gradient(135deg, #fd7e14, #ffc107); }
+        .cat-ROPA { background: linear-gradient(135deg, #e83e8c, #fd7e14); }
+        .cat-OTROS { background: linear-gradient(135deg, #6c757d, #495057); }
+
+        .warning-text {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-bottom: 30px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+            transform: translateX(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .delete-container {
+                padding: 30px 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .gasto-detail {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .detail-label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="delete-container">
+        <a href="{% url 'gastos:gastos' %}" class="back-link">
+            <span>←</span>
+            Volver a Gastos
+        </a>
+        
+        <div class="delete-icon">🗑️</div>
+        <div class="delete-title">Confirmar Eliminación</div>
+        
+        <div class="delete-message">
+            ¿Estás seguro de que deseas eliminar este gasto?
+        </div>
+        
+        <div class="gasto-info">
+            <div class="gasto-detail">
+                <span class="detail-label">📅 Fecha:</span>
+                <span class="detail-value">{{ gasto.fecha|date:"d/m/Y" }}</span>
+            </div>
+            <div class="gasto-detail">
+                <span class="detail-label">🏷️ Categoría:</span>
+                <span class="detail-value">
+                    <span class="category-badge cat-{{ gasto.tipo_gasto.nombre }}">
+                        {% if gasto.tipo_gasto.nombre == 'COMIDA' %}🍽️
+                        {% elif gasto.tipo_gasto.nombre == 'TRANSPORTE' %}🚗
+                        {% elif gasto.tipo_gasto.nombre == 'ENTRETENIMIENTO' %}🎮
+                        {% elif gasto.tipo_gasto.nombre == 'EDUCACION' %}📚
+                        {% elif gasto.tipo_gasto.nombre == 'INTERNET' %}💻
+                        {% elif gasto.tipo_gasto.nombre == 'VIAJES' %}✈️
+                        {% elif gasto.tipo_gasto.nombre == 'ROPA' %}👕
+                        {% else %}📦{% endif %}
+                        {{ gasto.tipo_gasto.get_nombre_display }}
+                    </span>
+                </span>
+            </div>
+            <div class="gasto-detail">
+                <span class="detail-label">📝 Descripción:</span>
+                <span class="detail-value">{{ gasto.descripcion }}</span>
+            </div>
+            <div class="gasto-detail">
+                <span class="detail-label">💰 Monto:</span>
+                <span class="detail-value amount">S/. {{ gasto.monto|floatformat:2 }}</span>
             </div>
         </div>
+        
+        <div class="warning-text">
+            <span>⚠️</span>
+            Esta acción no se puede deshacer. El gasto se eliminará permanentemente.
+        </div>
+        
+        <div class="button-group">
+            <form method="post" style="flex: 1;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <span>🗑️</span>
+                    Sí, Eliminar
+                </button>
+            </form>
+            <a href="{% url 'gastos:gastos' %}" class="btn btn-secondary">
+                <span>❌</span>
+                Cancelar
+            </a>
+        </div>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>

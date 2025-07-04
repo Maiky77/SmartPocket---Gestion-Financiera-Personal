@@ -175,6 +175,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
             position: relative;
+            z-index: 10;
         }
 
         .glass-card::before {
@@ -208,6 +209,7 @@
 
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
 
         .form-label {
@@ -219,7 +221,7 @@
             letter-spacing: 0.5px;
         }
 
-        .form-input {
+        .form-input, .form-select {
             width: 100%;
             padding: 14px 18px;
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -235,64 +237,52 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
             border-color: #667eea;
             background: rgba(255, 255, 255, 0.08);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        /* Grid de categorías */
-        .category-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .category-btn {
-            padding: 12px 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.8);
-            cursor: pointer;
-            text-align: center;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+        /* Estilo personalizado para select */
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
             position: relative;
-            overflow: hidden;
+            z-index: 1000;
         }
 
-        .category-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.6s ease;
+        .form-select option {
+            background: #1a1a2e !important;
+            color: #ffffff !important;
+            padding: 12px;
+            border: none;
         }
 
-        .category-btn:hover::before {
-            left: 100%;
+        .form-select option:hover {
+            background: #667eea !important;
+            color: #ffffff !important;
         }
 
-        .category-btn:hover {
-            border-color: #667eea;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            transform: translateY(-2px);
+        .form-select option:checked,
+        .form-select option:focus {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: #ffffff !important;
         }
 
-        .category-btn.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        /* Mejorar el z-index y posicionamiento del dropdown */
+        .form-group:focus-within {
+            z-index: 9999;
+            position: relative;
+        }
+
+        .form-select:focus {
+            z-index: 9999;
+            position: relative;
         }
 
         .submit-btn {
@@ -582,23 +572,16 @@
                                value="{{ fecha_actual|date:'Y-m-d' }}" required>
                     </div>
                     
-                    <!-- Categorías -->
+                    <!-- Categoría como dropdown -->
                     <div class="form-group">
                         <label class="form-label">🏷️ CATEGORÍA</label>
-                        <div class="category-grid">
-                            <div class="category-btn" data-value="COMIDA">🍽️ COMIDA</div>
-                            <div class="category-btn" data-value="TRANSPORTE">🚗 TRANSPORTE</div>
-                            <div class="category-btn" data-value="ENTRETENIMIENTO">🎮 ENTRETENIMIENTO</div>
-                            <div class="category-btn" data-value="EDUCACION">📚 EDUCACIÓN</div>
-                            <div class="category-btn" data-value="INTERNET">💻 INTERNET</div>
-                            <div class="category-btn" data-value="VIAJES">✈️ VIAJES</div>
-                            <div class="category-btn" data-value="ROPA">👕 ROPA</div>
-                            <div class="category-btn" data-value="OTROS">📦 OTROS</div>
-                        </div>
-                        <select name="tipo_gasto" id="categoria-select" style="display: none;" required>
-                            <option value="">Seleccionar</option>
+                        <select name="tipo_gasto" class="form-select" required>
+                            <option value="">Seleccionar categoría</option>
                             {% for tipo in tipos_gasto %}
-                            <option value="{{ tipo.id }}">{{ tipo.get_nombre_display }}</option>
+                            <option value="{{ tipo.id }}">
+                                {% if tipo.nombre == 'COMIDA' %}🍽️{% elif tipo.nombre == 'TRANSPORTE' %}🚗{% elif tipo.nombre == 'ENTRETENIMIENTO' %}🎮{% elif tipo.nombre == 'EDUCACION' %}📚{% elif tipo.nombre == 'INTERNET' %}💻{% elif tipo.nombre == 'VIAJES' %}✈️{% elif tipo.nombre == 'ROPA' %}👕{% else %}📦{% endif %}
+                                {{ tipo.get_nombre_display }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -639,10 +622,11 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">🏷️ CATEGORÍA</label>
-                        <select name="categoria" class="form-input">
-                            <option value="">Todas</option>
+                        <select name="categoria" class="form-select">
+                            <option value="">Todas las categorías</option>
                             {% for tipo in tipos_gasto %}
                             <option value="{{ tipo.nombre }}" {% if request.GET.categoria == tipo.nombre %}selected{% endif %}>
+                                {% if tipo.nombre == 'COMIDA' %}🍽️{% elif tipo.nombre == 'TRANSPORTE' %}🚗{% elif tipo.nombre == 'ENTRETENIMIENTO' %}🎮{% elif tipo.nombre == 'EDUCACION' %}📚{% elif tipo.nombre == 'INTERNET' %}💻{% elif tipo.nombre == 'VIAJES' %}✈️{% elif tipo.nombre == 'ROPA' %}👕{% else %}📦{% endif %}
                                 {{ tipo.get_nombre_display }}
                             </option>
                             {% endfor %}
@@ -709,30 +693,33 @@
     </div>
     
     <script>
-    // Script para selección de categorías
-    document.addEventListener('DOMContentLoaded', function() {
-        const categoryBtns = document.querySelectorAll('.category-btn');
-        const categorySelect = document.getElementById('categoria-select');
-        
-        categoryBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Remover selección anterior
-                categoryBtns.forEach(b => b.classList.remove('selected'));
+        // Aplicar clases CSS a los campos del formulario de Django
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar estilos a los inputs y selects generados por Django
+            const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea');
+            const selects = document.querySelectorAll('select');
+            
+            inputs.forEach(input => {
+                input.classList.add('form-input');
+            });
+            
+            selects.forEach(select => {
+                select.classList.add('form-select');
                 
-                // Agregar selección actual
-                this.classList.add('selected');
+                // Mejorar el comportamiento del dropdown
+                select.addEventListener('focus', function() {
+                    this.style.zIndex = '9999';
+                    this.parentElement.style.zIndex = '9999';
+                });
                 
-                // Actualizar select oculto
-                const value = this.dataset.value;
-                const option = Array.from(categorySelect.options).find(opt => 
-                    opt.text.toUpperCase().includes(value)
-                );
-                if (option) {
-                    categorySelect.value = option.value;
-                }
+                select.addEventListener('blur', function() {
+                    setTimeout(() => {
+                        this.style.zIndex = '1';
+                        this.parentElement.style.zIndex = '1';
+                    }, 200);
+                });
             });
         });
-    });
     </script>
 </body>
 </html>

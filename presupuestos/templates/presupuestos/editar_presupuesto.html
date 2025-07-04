@@ -66,6 +66,10 @@
             backdrop-filter: blur(10px);
         }
 
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         .form-input:focus, .form-select:focus {
             outline: none;
             border-color: #667eea;
@@ -73,9 +77,24 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        /* Estilo personalizado para select */
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
         .form-select option {
             background: #1a1a2e;
             color: #ffffff;
+            padding: 10px;
+        }
+
+        .form-select option:checked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .button-group {
@@ -95,6 +114,10 @@
             transition: all 0.3s ease;
             text-decoration: none;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary {
@@ -124,17 +147,35 @@
             text-decoration: none;
             font-size: 14px;
             margin-bottom: 20px;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
         }
 
         .back-link:hover {
             color: #764ba2;
+            transform: translateX(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .edit-container {
+                padding: 30px 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="edit-container">
-        <a href="{% url 'presupuestos:presupuestos' %}" class="back-link">← Volver a Presupuestos</a>
+        <a href="{% url 'presupuestos:presupuestos' %}" class="back-link">
+            <span>←</span>
+            Volver a Presupuestos
+        </a>
         
         <div class="edit-title">✏️ Editar Presupuesto</div>
         
@@ -162,10 +203,33 @@
             </div>
             
             <div class="button-group">
-                <button type="submit" class="btn btn-primary">✅ Guardar Cambios</button>
-                <a href="{% url 'presupuestos:presupuestos' %}" class="btn btn-secondary">❌ Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <span>✅</span>
+                    Guardar Cambios
+                </button>
+                <a href="{% url 'presupuestos:presupuestos' %}" class="btn btn-secondary">
+                    <span>❌</span>
+                    Cancelar
+                </a>
             </div>
         </form>
     </div>
+
+    <script>
+        // Aplicar clases CSS a los campos del formulario de Django
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar estilos a los inputs y selects generados por Django
+            const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea');
+            const selects = document.querySelectorAll('select');
+            
+            inputs.forEach(input => {
+                input.classList.add('form-input');
+            });
+            
+            selects.forEach(select => {
+                select.classList.add('form-select');
+            });
+        });
+    </script>
 </body>
 </html>

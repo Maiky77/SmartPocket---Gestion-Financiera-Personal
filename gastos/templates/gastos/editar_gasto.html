@@ -1,48 +1,284 @@
-<!-- gastos/templates/gastos/editar_gasto.html -->
-{% extends 'authentication/base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Gasto - SmartPocket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block title %}Editar Gasto - SmartPocket{% endblock %}
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-{% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4>📝 Editar Gasto</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label">{{ form.tipo_gasto.label }}</label>
-                            {{ form.tipo_gasto }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">{{ form.monto.label }}</label>
-                            {{ form.monto }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">{{ form.descripcion.label }}</label>
-                            {{ form.descripcion }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">{{ form.fecha.label }}</label>
-                            {{ form.fecha }}
-                        </div>
-                        
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                            <a href="{% url 'gastos:gastos' %}" class="btn btn-secondary">Cancelar</a>
-                        </div>
-                    </form>
-                </div>
+        .edit-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .edit-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Estilo personalizado para select */
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .form-select option {
+            background: #1a1a2e;
+            color: #ffffff;
+            padding: 10px;
+        }
+
+        .form-select option:checked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+            transform: translateX(-5px);
+        }
+
+        /* Información del gasto actual */
+        .gasto-info {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .gasto-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .gasto-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .detail-value {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .edit-container {
+                padding: 30px 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-container">
+        <a href="{% url 'gastos:gastos' %}" class="back-link">
+            <span>←</span>
+            Volver a Gastos
+        </a>
+        
+        <div class="edit-title">✏️ Editar Gasto</div>
+        
+        <!-- Información actual del gasto -->
+        <div class="gasto-info">
+            <div class="gasto-detail">
+                <span class="detail-label">Gasto Actual:</span>
+                <span class="detail-value">{{ gasto.descripcion }}</span>
+            </div>
+            <div class="gasto-detail">
+                <span class="detail-label">Categoría:</span>
+                <span class="detail-value">{{ gasto.tipo_gasto.get_nombre_display }}</span>
+            </div>
+            <div class="gasto-detail">
+                <span class="detail-label">Monto:</span>
+                <span class="detail-value">S/. {{ gasto.monto|floatformat:2 }}</span>
+            </div>
+            <div class="gasto-detail">
+                <span class="detail-label">Fecha:</span>
+                <span class="detail-value">{{ gasto.fecha|date:"d/m/Y" }}</span>
             </div>
         </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">🏷️ Categoría</label>
+                {{ form.tipo_gasto }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">💰 Monto (S/.)</label>
+                {{ form.monto }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">📝 Descripción</label>
+                {{ form.descripcion }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">📅 Fecha</label>
+                {{ form.fecha }}
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    <span>✅</span>
+                    Guardar Cambios
+                </button>
+                <a href="{% url 'gastos:gastos' %}" class="btn btn-secondary">
+                    <span>❌</span>
+                    Cancelar
+                </a>
+            </div>
+        </form>
     </div>
-</div>
-{% endblock %}
+
+    <script>
+        // Aplicar clases CSS a los campos del formulario de Django
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar estilos a los inputs y selects generados por Django
+            const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea');
+            const selects = document.querySelectorAll('select');
+            
+            inputs.forEach(input => {
+                input.classList.add('form-input');
+            });
+            
+            selects.forEach(select => {
+                select.classList.add('form-select');
+            });
+        });
+    </script>
+</body>
+</html>
