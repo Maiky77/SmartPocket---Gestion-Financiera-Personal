@@ -141,3 +141,17 @@ LOGIN_REDIRECT_URL = 'authentication:dashboard'  # CAMBIO: Ahora redirige a dash
 LOGOUT_REDIRECT_URL = 'authentication:login'
 
 #ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'smart-pocket.loc']
+
+# Configuración de archivos media (fotos de perfil)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Crear directorio media si no existe
+import os
+if not os.path.exists(MEDIA_ROOT):
+    os.makedirs(MEDIA_ROOT)
+    os.makedirs(MEDIA_ROOT / 'perfiles')
+
+# Para desarrollo - servir archivos media
+#if DEBUG:
+    # Esto se agregará en urls.py principal

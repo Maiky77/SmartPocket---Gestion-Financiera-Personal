@@ -173,6 +173,27 @@
             font-size: 14px;
         }
 
+        /* Alertas */
+        .alert-banner {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+
+        .alert-banner.danger {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: rgba(220, 53, 69, 0.3);
+        }
+
+        .alert-banner.info {
+            background: rgba(23, 162, 184, 0.1);
+            border-color: rgba(23, 162, 184, 0.3);
+        }
+
         /* Cards de resumen financiero */
         .summary-cards {
             display: grid;
@@ -409,6 +430,34 @@
             color: #d4edda;
         }
 
+        /* Sin datos */
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .no-data h3 {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .no-data a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .no-data a:hover {
+            color: #764ba2;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .dashboard-grid {
@@ -473,141 +522,168 @@
             {% endfor %}
         {% endif %}
         
+        <!-- Alertas de presupuesto -->
+        {% for alerta in alertas_presupuesto %}
+            <div class="alert-banner {% if alerta.tipo_alerta == 'LIMITE_EXCEDIDO' %}danger{% else %}warning{% endif %}">
+                <strong>{% if alerta.tipo_alerta == 'LIMITE_EXCEDIDO' %}🚨{% else %}⚠️{% endif %}</strong>
+                {{ alerta.mensaje }}
+            </div>
+        {% endfor %}
+        
         <!-- Banner de bienvenida -->
         <div class="welcome-banner">
             <div class="welcome-title">¡Bienvenido a SmartPocket!</div>
-            <div class="welcome-subtitle">Tu centro de control financiero personal</div>
-        </div>
-        
-        <!-- Cards de resumen financiero -->
-        <div class="summary-cards">
-            <div class="summary-card">
-                <div class="summary-header">
-                    <div class="summary-icon expenses">💸</div>
-                    <div class="summary-title">Gastos del Mes</div>
-                </div>
-                <div class="summary-value">S/. 1,247.50</div>
-                <div class="summary-subtitle">+15% vs mes anterior</div>
-            </div>
-            
-            <div class="summary-card">
-                <div class="summary-header">
-                    <div class="summary-icon budget">🎯</div>
-                    <div class="summary-title">Presupuesto Restante</div>
-                </div>
-                <div class="summary-value">S/. 752.50</div>
-                <div class="summary-subtitle">37% del presupuesto</div>
-            </div>
-            
-            <div class="summary-card">
-                <div class="summary-header">
-                    <div class="summary-icon savings">💰</div>
-                    <div class="summary-title">Ahorros Potenciales</div>
-                </div>
-                <div class="summary-value">S/. 245.00</div>
-                <div class="summary-subtitle">Basado en patrones</div>
-            </div>
-            
-            <div class="summary-card">
-                <div class="summary-header">
-                    <div class="summary-icon categories">📊</div>
-                    <div class="summary-title">Categorías Activas</div>
-                </div>
-                <div class="summary-value">6</div>
-                <div class="summary-subtitle">Comida es la principal</div>
+            <div class="welcome-subtitle">
+                {% if tiene_datos %}
+                    Tu centro de control financiero personal - Datos actualizados al {{ fecha_actual|date:"d/m/Y" }}
+                {% else %}
+                    Tu centro de control financiero personal - ¡Comienza registrando tus gastos!
+                {% endif %}
             </div>
         </div>
         
-        <!-- Grid principal del dashboard -->
-        <div class="dashboard-grid">
-            <!-- Resumen visual -->
-            <div class="glass-card">
-                <div class="card-title">📊 Resumen Financiero</div>
-                
-                <div class="chart-container">
-                    <div class="pie-chart"></div>
+        {% if tiene_datos %}
+            <!-- Cards de resumen financiero DINÁMICAS -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <div class="summary-icon expenses">💸</div>
+                        <div class="summary-title">Gastos del Mes</div>
+                    </div>
+                    <div class="summary-value">S/. {{ total_gastos_mes|floatformat:2 }}</div>
+                    <div class="summary-subtitle">
+                        {% if cambio_porcentual != 0 %}
+                            {% if cambio_porcentual > 0 %}+{% endif %}{{ cambio_porcentual|floatformat:1 }}% vs mes anterior
+                        {% else %}
+                            {{ count_gastos_mes }} transacciones este mes
+                        {% endif %}
+                    </div>
                 </div>
                 
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-value">15</div>
-                        <div class="stat-label">Gastos este mes</div>
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <div class="summary-icon budget">🎯</div>
+                        <div class="summary-title">Presupuesto Restante</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Presupuestos activos</div>
+                    <div class="summary-value">S/. {{ presupuesto_restante|floatformat:2 }}</div>
+                    <div class="summary-subtitle">
+                        {% if total_presupuesto > 0 %}
+                            {{ porcentaje_presupuesto_usado|floatformat:1 }}% del presupuesto usado
+                        {% else %}
+                            Sin presupuestos definidos
+                        {% endif %}
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value">68%</div>
-                        <div class="stat-label">Del presupuesto usado</div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <div class="summary-icon savings">💰</div>
+                        <div class="summary-title">Ahorros Potenciales</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value">S/. 82</div>
-                        <div class="stat-label">Promedio diario</div>
+                    <div class="summary-value">S/. {{ ahorros_potenciales|floatformat:2 }}</div>
+                    <div class="summary-subtitle">Basado en análisis de patrones</div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <div class="summary-icon categories">📊</div>
+                        <div class="summary-title">Categoría Principal</div>
+                    </div>
+                    <div class="summary-value">{{ categoria_principal }}</div>
+                    <div class="summary-subtitle">
+                        {% if monto_categoria_principal > 0 %}
+                            S/. {{ monto_categoria_principal|floatformat:2 }} gastado
+                        {% else %}
+                            Análisis disponible pronto
+                        {% endif %}
                     </div>
                 </div>
             </div>
             
-            <!-- Actividad reciente -->
-            <div class="glass-card">
-                <div class="card-title">📈 Actividad Reciente</div>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">🍽️</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Almuerzo universitario</div>
-                            <div class="activity-subtitle">Hace 2 horas · Comida</div>
-                        </div>
-                        <div class="activity-amount">-S/. 18.00</div>
+            <!-- Grid principal del dashboard -->
+            <div class="dashboard-grid">
+                <!-- Resumen visual DINÁMICO -->
+                <div class="glass-card">
+                    <div class="card-title">📊 Resumen Financiero</div>
+                    
+                    <div class="chart-container">
+                        <div class="pie-chart"></div>
                     </div>
                     
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: linear-gradient(135deg, #007bff, #6610f2);">🚗</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Taxi a casa</div>
-                            <div class="activity-subtitle">Ayer · Transporte</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ count_gastos_mes }}</div>
+                            <div class="stat-label">Gastos este mes</div>
                         </div>
-                        <div class="activity-amount">-S/. 8.50</div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ presupuestos_activos_count }}</div>
+                            <div class="stat-label">Presupuestos activos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ porcentaje_presupuesto_usado|floatformat:1 }}%</div>
+                            <div class="stat-label">Del presupuesto usado</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">S/. {{ promedio_diario|floatformat:1 }}</div>
+                            <div class="stat-label">Promedio por gasto</div>
+                        </div>
                     </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: linear-gradient(135deg, #dc3545, #e83e8c);">🎮</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Recarga videojuego</div>
-                            <div class="activity-subtitle">Ayer · Entretenimiento</div>
-                        </div>
-                        <div class="activity-amount">-S/. 15.00</div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: linear-gradient(135deg, #6f42c1, #e83e8c);">📚</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Copias e impresiones</div>
-                            <div class="activity-subtitle">Hace 2 días · Educación</div>
-                        </div>
-                        <div class="activity-amount">-S/. 4.50</div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: linear-gradient(135deg, #20c997, #17a2b8);">💻</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Plan de datos móviles</div>
-                            <div class="activity-subtitle">Hace 3 días · Internet</div>
-                        </div>
-                        <div class="activity-amount">-S/. 25.00</div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: linear-gradient(135deg, #fd7e14, #ffc107);">✈️</div>
-                        <div class="activity-content">
-                            <div class="activity-title">Pasaje de bus</div>
-                            <div class="activity-subtitle">Hace 4 días · Viajes</div>
-                        </div>
-                        <div class="activity-amount">-S/. 12.00</div>
+                </div>
+                
+                <!-- Actividad reciente DINÁMICA -->
+                <div class="glass-card">
+                    <div class="card-title">📈 Actividad Reciente</div>
+                    <div class="activity-list">
+                        {% for gasto in actividad_reciente %}
+                            <div class="activity-item">
+                                <div class="activity-icon" style="background: 
+                                    {% if gasto.tipo_gasto.nombre == 'COMIDA' %}linear-gradient(135deg, #28a745, #20c997);
+                                    {% elif gasto.tipo_gasto.nombre == 'TRANSPORTE' %}linear-gradient(135deg, #007bff, #6610f2);
+                                    {% elif gasto.tipo_gasto.nombre == 'ENTRETENIMIENTO' %}linear-gradient(135deg, #dc3545, #e83e8c);
+                                    {% elif gasto.tipo_gasto.nombre == 'EDUCACION' %}linear-gradient(135deg, #6f42c1, #e83e8c);
+                                    {% elif gasto.tipo_gasto.nombre == 'INTERNET' %}linear-gradient(135deg, #20c997, #17a2b8);
+                                    {% elif gasto.tipo_gasto.nombre == 'VIAJES' %}linear-gradient(135deg, #fd7e14, #ffc107);
+                                    {% elif gasto.tipo_gasto.nombre == 'ROPA' %}linear-gradient(135deg, #e83e8c, #fd7e14);
+                                    {% else %}linear-gradient(135deg, #6c757d, #495057);{% endif %};">
+                                    {% if gasto.tipo_gasto.nombre == 'COMIDA' %}🍽️
+                                    {% elif gasto.tipo_gasto.nombre == 'TRANSPORTE' %}🚗
+                                    {% elif gasto.tipo_gasto.nombre == 'ENTRETENIMIENTO' %}🎮
+                                    {% elif gasto.tipo_gasto.nombre == 'EDUCACION' %}📚
+                                    {% elif gasto.tipo_gasto.nombre == 'INTERNET' %}💻
+                                    {% elif gasto.tipo_gasto.nombre == 'VIAJES' %}✈️
+                                    {% elif gasto.tipo_gasto.nombre == 'ROPA' %}👕
+                                    {% else %}📦{% endif %}
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">{{ gasto.descripcion|truncatechars:30 }}</div>
+                                    <div class="activity-subtitle">
+                                        {% if gasto.fecha == fecha_actual %}Hoy
+                                        {% else %}{{ gasto.fecha|timesince }} · {% endif %}
+                                        {{ gasto.tipo_gasto.get_nombre_display }}
+                                    </div>
+                                </div>
+                                <div class="activity-amount">-S/. {{ gasto.monto|floatformat:2 }}</div>
+                            </div>
+                        {% empty %}
+                            <div class="no-data">
+                                <p>No hay actividad reciente.</p>
+                                <p><a href="{% url 'gastos:gastos' %}">¡Registra tu primer gasto!</a></p>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-        </div>
+        {% else %}
+            <!-- Mensaje cuando no hay datos -->
+            <div class="no-data">
+                <h3>🚀 ¡Comencemos tu gestión financiera!</h3>
+                <p>Para ver tu dashboard financiero personalizado, necesitas registrar algunos gastos y crear presupuestos.</p>
+                <p>
+                    <a href="{% url 'gastos:gastos' %}">📝 Registrar mi primer gasto</a> |
+                    <a href="{% url 'presupuestos:presupuestos' %}">🎯 Crear mi primer presupuesto</a>
+                </p>
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>

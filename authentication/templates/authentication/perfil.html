@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - SmartPocket</title>
+    <title>Mi Perfil - SmartPocket</title>
     <style>
         * {
             margin: 0;
@@ -18,6 +18,28 @@
             color: #ffffff;
             position: relative;
             overflow-x: hidden;
+        }
+        /*boton de guardar cambios*/
+        .btn-guardar-principal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 18px 40px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 300px;
+        }
+
+        .btn-guardar-principal:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, #7c8cff 0%, #8b5fbf 100%);
         }
 
         /* Efectos de fondo sutiles */
@@ -59,12 +81,6 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .header:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
 
         .brand-title {
@@ -126,24 +142,6 @@
             font-weight: 500;
             font-size: 14px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-tab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-
-        .nav-tab:hover::before {
-            transform: translateX(0);
         }
 
         .nav-tab.active {
@@ -175,16 +173,6 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
             position: relative;
-        }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
         }
 
         .glass-card:hover {
@@ -229,7 +217,7 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        /* Sección central */
+        /* Sección central - Foto de perfil */
         .center-section {
             display: flex;
             flex-direction: column;
@@ -237,10 +225,15 @@
             gap: 20px;
         }
 
+        .foto-perfil-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+
         .foto-perfil {
             width: 180px;
             height: 180px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
@@ -255,24 +248,32 @@
             box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
         }
 
-        .foto-perfil::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.6s ease;
+        .foto-perfil.has-image {
+            background: none;
         }
 
-        .foto-perfil:hover::before {
-            left: 100%;
+        .foto-perfil:not(.has-image) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .foto-perfil:hover {
             transform: translateY(-5px) scale(1.02);
             box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+        }
+
+        .foto-perfil img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+        }
+
+        .foto-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
         }
 
         .btn-guardar {
@@ -437,7 +438,7 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        .password-field input {
+        .password-input {
             padding: 12px 16px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
@@ -448,11 +449,11 @@
             transition: all 0.3s ease;
         }
 
-        .password-field input::placeholder {
+        .password-input::placeholder {
             color: rgba(255, 255, 255, 0.5);
         }
 
-        .password-field input:focus {
+        .password-input:focus {
             outline: none;
             border-color: #667eea;
             background: rgba(255, 255, 255, 0.08);
@@ -476,6 +477,58 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
+
+        /* Mensajes */
+        .message {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .message.success {
+            border-color: rgba(40, 167, 69, 0.3);
+            background: rgba(40, 167, 69, 0.1);
+            color: #d4edda;
+        }
+
+        .message.error {
+            border-color: rgba(220, 53, 69, 0.3);
+            background: rgba(220, 53, 69, 0.1);
+            color: #f8d7da;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .perfil-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .bottom-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .password-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .nav-tab {
+                flex: none;
+                font-size: 12px;
+                padding: 10px 16px;
+            }
+            
+        }
     </style>
 </head>
 <body>
@@ -493,7 +546,7 @@
         <div class="nav-tabs">
             <a href="{% url 'authentication:dashboard' %}" class="nav-tab">🏠 Inicio</a>
             <a href="{% url 'recomendaciones:recomendaciones' %}" class="nav-tab">💡 Recomendaciones</a>
-            <a href="#" class="nav-tab">📊 Estadística</a>
+            <a href="{% url 'estadisticas:estadisticas' %}" class="nav-tab">📊 Estadística</a>
             <a href="{% url 'presupuestos:presupuestos' %}" class="nav-tab">🎯 Presupuesto</a>
             <a href="{% url 'gastos:gastos' %}" class="nav-tab">💰 Gastos</a>
             <a href="{% url 'authentication:perfil' %}" class="nav-tab active">👤 Perfil</a>
@@ -502,7 +555,7 @@
         <!-- Mensajes -->
         {% if messages %}
             {% for message in messages %}
-                <div style="background: {% if message.tags == 'success' %}#d4edda{% else %}#f8d7da{% endif %}; color: {% if message.tags == 'success' %}#155724{% else %}#721c24{% endif %}; padding: 15px; border-radius: 8px; margin-bottom: 20px; max-width: 1200px; margin-left: auto; margin-right: auto;">
+                <div class="message {% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% endif %}">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -513,41 +566,85 @@
             <!-- Información personal -->
             <div class="glass-card">
                 <div class="form-section-title">📝 INFORMACIÓN PERSONAL</div>
-                <input type="text" class="form-field" placeholder="NOMBRE" value="{{ user.first_name|default:'admin' }}">
-                <input type="text" class="form-field" placeholder="APELLIDO" value="{{ user.last_name|default:'' }}">
-                <input type="text" class="form-field" placeholder="TELÉFONO" value="{{ user.telefono|default:'' }}">
-                <input type="email" class="form-field" placeholder="CORREO ELECTRÓNICO" value="{{ user.email }}" readonly style="opacity: 0.7;">
-                
-                <div class="info-card">
-                    <strong>💼 Información de cuenta:</strong><br>
-                    • Registrado: {{ user.fecha_registro|date:"d/m/Y" }}<br>
-                    • Usuario: {{ user.username }}<br>
-                    • Estado: Activo ✅
-                </div>
+                <form method="post" id="perfil-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="actualizar_perfil" value="1">
+                    
+                    {{ perfil_form.first_name }}
+                    {{ perfil_form.last_name }}
+                    {{ perfil_form.telefono }}
+                    
+                    <input type="email" class="form-field" placeholder="CORREO ELECTRÓNICO" 
+                           value="{{ user.email }}" readonly style="opacity: 0.7;">
+                    
+                    <div class="info-card">
+                        <strong>💼 Información de cuenta:</strong><br>
+                        • Registrado: {{ user.fecha_registro|date:"d/m/Y" }}<br>
+                        • Usuario: {{ user.username }}<br>
+                        • Estado: Activo ✅
+                        {% if estadisticas %}
+                        <br>• Gastos registrados: {{ estadisticas.total_gastos }}
+                        <br>• Presupuestos activos: {{ estadisticas.presupuestos_activos }}
+                        {% endif %}
+                    </div>
+                </form>
             </div>
             
-            <!-- Sección central -->
+            <!-- Sección central - Foto de perfil -->
             <div class="glass-card center-section">
-                <div class="foto-perfil">
-                    <div style="font-size: 32px; margin-bottom: 8px;">👤</div>
-                    <div style="font-weight: 600;">FOTO DE PERFIL</div>
-                    <small style="font-size: 12px; opacity: 0.8;">Click para subir</small>
+                <div class="foto-perfil-container">
+                    <div class="foto-perfil {% if user.foto_perfil %}has-image{% endif %}" onclick="document.getElementById('id_foto_perfil').click();">
+                        {% if user.foto_perfil %}
+                            <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil" id="foto-preview">
+                        {% else %}
+                            <div class="foto-placeholder">
+                                <div style="font-size: 32px; margin-bottom: 8px;">👤</div>
+                                <div style="font-weight: 600;">FOTO DE PERFIL</div>
+                                <small style="font-size: 12px; opacity: 0.8;">Click para subir</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data" style="display: none;" id="foto-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="actualizar_perfil" value="1">
+                        {{ perfil_form.foto_perfil }}
+                    </form>
                 </div>
-                <button class="btn-guardar">GUARDAR CAMBIOS</button>
+                
+                {% if user.foto_perfil %}
+                <form method="post" action="{% url 'authentication:eliminar_foto_perfil' %}" style="margin-top: 10px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-guardar" style="background: rgba(255,107,107,0.2); border: 1px solid rgba(255,107,107,0.3);" 
+                            onclick="return confirm('¿Eliminar foto de perfil?')">
+                        🗑️ ELIMINAR FOTO
+                    </button>
+                </form>
+                {% endif %}
             </div>
             
             <!-- Descripción -->
             <div class="glass-card">
                 <div class="form-section-title">📄 DESCRIPCIÓN CORTA</div>
-                <textarea class="textarea-description" placeholder="Escribe una descripción sobre ti, tus objetivos financieros o cualquier nota personal...">{{ user.descripcion_corta|default:"Usuario de SmartPocket enfocado en el control de finanzas personales." }}</textarea>
+                <form method="post" id="descripcion-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="actualizar_perfil" value="1">
+                    {{ perfil_form.descripcion_corta }}
+                </form>
             </div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn-guardar-principal" onclick="guardarPerfil()">
+                ✨ GUARDAR TODOS LOS CAMBIOS
+            </button>
         </div>
         
         <!-- Sección inferior: Gráficos y Cambiar Contraseña -->
         <div class="bottom-section">
             <!-- Gráficos -->
             <div class="glass-card">
-                <div class="chart-title">📈 ACTUALIZACIÓN ÚLTIMA SEMANA</div>
+                <div class="chart-title">📈 ESTADÍSTICAS PERSONALES</div>
                 <div class="charts-section">
                     <div class="chart-container">
                         <div class="bar-chart">
@@ -565,6 +662,14 @@
                         <div style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 8px;">Distribución</div>
                     </div>
                 </div>
+                
+                {% if estadisticas %}
+                <div style="margin-top: 20px; text-align: center; color: rgba(255,255,255,0.8); font-size: 13px;">
+                    <div>📊 Gastos último mes: <strong>{{ estadisticas.gastos_mes_actual }}</strong></div>
+                    <div>🎯 Recomendaciones pendientes: <strong>{{ estadisticas.recomendaciones_pendientes }}</strong></div>
+                    <div>⏱️ Días en el sistema: <strong>{{ estadisticas.dias_en_sistema }}</strong></div>
+                </div>
+                {% endif %}
             </div>
             
             <!-- Cambiar Contraseña -->
@@ -573,30 +678,158 @@
                     <span>🔐 CAMBIAR CONTRASEÑA</span>
                 </div>
                 
-                <div class="password-form">
+                <form method="post" class="password-form" id="password-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="cambiar_contrasena" value="1">
+                    
                     <div class="password-row">
                         <div class="password-field">
                             <label>CONTRASEÑA ACTUAL</label>
-                            <input type="password" name="current_password" placeholder="••••••••">
+                            {{ password_form.old_password }}
                         </div>
                         
                         <div class="password-field">
                             <label>NUEVA CONTRASEÑA</label>
-                            <input type="password" name="new_password" placeholder="••••••••">
+                            {{ password_form.new_password1 }}
                         </div>
                         
                         <div class="password-field">
                             <label>REPETIR CONTRASEÑA</label>
-                            <input type="password" name="confirm_password" placeholder="••••••••">
+                            {{ password_form.new_password2 }}
                         </div>
                     </div>
                     
                     <div style="text-align: center; margin-top: 20px;">
-                        <button class="btn-guardar-password">GUARDAR CAMBIOS</button>
+                        <button type="submit" class="btn-guardar-password">CAMBIAR CONTRASEÑA</button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <script>
+        // JavaScript para funcionalidad del perfil
+        
+        // Previsualizar foto antes de subir
+        document.getElementById('id_foto_perfil').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validar tamaño (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('La imagen no puede superar los 5MB.');
+                    return;
+                }
+                
+                // Validar tipo
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Solo se permiten imágenes JPG, PNG o GIF.');
+                    return;
+                }
+                
+                // Previsualizar
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fotoContainer = document.querySelector('.foto-perfil');
+                    fotoContainer.classList.add('has-image');
+                    fotoContainer.innerHTML = `<img src="${e.target.result}" alt="Foto de perfil" id="foto-preview">`;
+                };
+                reader.readAsDataURL(file);
+                
+                // Auto-enviar formulario de foto
+                document.getElementById('foto-form').submit();
+            }
+        });
+        
+        // Función para guardar perfil
+        function guardarPerfil() {
+            // Recopilar datos del formulario de información personal
+            const form = document.getElementById('perfil-form');
+            const descripcionForm = document.getElementById('descripcion-form');
+            
+            // Copiar valor de descripción al formulario principal
+            const descripcionTextarea = descripcionForm.querySelector('textarea');
+            if (descripcionTextarea) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'descripcion_corta';
+                hiddenInput.value = descripcionTextarea.value;
+                form.appendChild(hiddenInput);
+            }
+            
+            // Enviar formulario
+            form.submit();
+        }
+        
+        // Validación en tiempo real para contraseñas
+        const passwordInputs = document.querySelectorAll('#password-form input[type="password"]');
+        passwordInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                // Limpiar estilos previos
+                this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                
+                // Validar longitud mínima
+                if (this.value.length > 0 && this.value.length < 8) {
+                    this.style.borderColor = '#ff6b6b';
+                } else if (this.value.length >= 8) {
+                    this.style.borderColor = '#4ecdc4';
+                }
+            });
+        });
+        
+        // Validar confirmación de contraseña
+        const newPassword = document.querySelector('input[name="new_password1"]');
+        const confirmPassword = document.querySelector('input[name="new_password2"]');
+        
+        if (newPassword && confirmPassword) {
+            confirmPassword.addEventListener('input', function() {
+                if (this.value !== newPassword.value && this.value.length > 0) {
+                    this.style.borderColor = '#ff6b6b';
+                } else if (this.value === newPassword.value && this.value.length > 0) {
+                    this.style.borderColor = '#4ecdc4';
+                } else {
+                    this.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                }
+            });
+        }
+        
+        // Animar gráficos al cargar
+        window.addEventListener('load', function() {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.opacity = '0';
+                    bar.style.height = '0';
+                    setTimeout(() => {
+                        bar.style.transition = 'all 0.8s ease';
+                        bar.style.opacity = '1';
+                        bar.classList.forEach(className => {
+                            if (className.startsWith('bar')) {
+                                switch(className) {
+                                    case 'bar1': bar.style.height = '30%'; break;
+                                    case 'bar2': bar.style.height = '45%'; break;
+                                    case 'bar3': bar.style.height = '60%'; break;
+                                    case 'bar4': bar.style.height = '50%'; break;
+                                    case 'bar5': bar.style.height = '70%'; break;
+                                }
+                            }
+                        });
+                    }, 100);
+                }, index * 150);
+            });
+            
+            // Animar gráfico circular
+            const pieChart = document.querySelector('.pie-chart');
+            if (pieChart) {
+                setTimeout(() => {
+                    pieChart.style.transform = 'scale(0)';
+                    setTimeout(() => {
+                        pieChart.style.transition = 'all 0.8s ease';
+                        pieChart.style.transform = 'scale(1)';
+                    }, 100);
+                }, 800);
+            }
+        });
+    </script>
 </body>
 </html>
