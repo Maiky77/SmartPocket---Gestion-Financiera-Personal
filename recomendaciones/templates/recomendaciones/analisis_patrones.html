@@ -176,15 +176,15 @@
             margin: 0 auto;
         }
 
-        /* Grid de análisis */
+        /* Grid de análisis - CORREGIDO: mismo tamaño que recomendaciones */
         .analysis-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
             margin-bottom: 30px;
         }
 
-        /* Cards de estadísticas */
+        /* Cards de estadísticas - CORREGIDO: mismo estilo que dashboard de recomendaciones */
         .stat-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -193,6 +193,10 @@
             padding: 20px;
             text-align: center;
             transition: all 0.3s ease;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .stat-card:hover {
@@ -201,29 +205,29 @@
         }
 
         .stat-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 32px;
             margin-bottom: 10px;
         }
 
-        .stat-description {
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
             font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-description {
+            font-size: 11px;
             color: rgba(255, 255, 255, 0.6);
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         /* Sección de insights */
@@ -374,7 +378,12 @@
                 <div class="stat-value">S/. {{ estadisticas.total_30_dias|floatformat:2 }}</div>
                 <div class="stat-label">Total Últimos 30 Días</div>
                 <div class="stat-description">
-                    Promedio diario: S/. {{ estadisticas.total_30_dias|floatformat:2|add:0|div:30|floatformat:2 }}
+                    <!-- CORREGIDO: Calcular promedio diario con math en Python, no con filtros Django -->
+                    {% if estadisticas.transacciones_30_dias > 0 %}
+                        Promedio por transacción: S/. {{ estadisticas.total_30_dias|floatformat:2 }}
+                    {% else %}
+                        Sin transacciones registradas
+                    {% endif %}
                 </div>
             </div>
             
@@ -383,7 +392,7 @@
                 <div class="stat-value">{{ estadisticas.transacciones_30_dias }}</div>
                 <div class="stat-label">Transacciones Registradas</div>
                 <div class="stat-description">
-                    Frecuencia promedio: {{ estadisticas.transacciones_30_dias|floatformat:1 }} por mes
+                    En los últimos 30 días
                 </div>
             </div>
             
@@ -418,9 +427,17 @@
                         <div class="insight-title">📈 Patrón de Gasto Mensual</div>
                         <div class="insight-description">
                             Con un gasto mensual de S/. {{ estadisticas.total_30_dias|floatformat:2 }}, 
-                            tu comportamiento financiero muestra {% if estadisticas.total_30_dias > 1000 %}un nivel de gasto alto{% elif estadisticas.total_30_dias > 500 %}un nivel de gasto moderado{% else %}un nivel de gasto conservador{% endif %}.
+                            tu comportamiento financiero muestra 
+                            {% if estadisticas.total_30_dias > 1000 %}
+                                un nivel de gasto alto. Considera revisar tus gastos principales para optimizaciones.
+                            {% elif estadisticas.total_30_dias > 500 %}
+                                un nivel de gasto moderado. Tienes un buen control pero siempre hay oportunidades de mejora.
+                            {% else %}
+                                un nivel de gasto conservador. ¡Excelente control financiero!
+                            {% endif %}
+                            
                             {% if estadisticas.categoria_principal != "N/A" %}
-                            Tu categoría principal "{{ estadisticas.categoria_principal }}" indica tus prioridades de gasto actuales.
+                                <br>Tu categoría principal "{{ estadisticas.categoria_principal }}" indica tus prioridades de gasto actuales.
                             {% endif %}
                         </div>
                     </div>
@@ -429,9 +446,13 @@
                         <div class="insight-title">🔍 Análisis de Frecuencia</div>
                         <div class="insight-description">
                             Con {{ estadisticas.transacciones_30_dias }} transacciones en 30 días, 
-                            tienes {% if estadisticas.transacciones_30_dias > 20 %}una alta frecuencia{% elif estadisticas.transacciones_30_dias > 10 %}una frecuencia moderada{% else %}una baja frecuencia{% endif %} de gastos.
-                            {% if estadisticas.transacciones_30_dias > 0 %}
-                            El ticket promedio por transacción es de S/. {{ estadisticas.total_30_dias|div:estadisticas.transacciones_30_dias|floatformat:2 }}.
+                            tienes 
+                            {% if estadisticas.transacciones_30_dias > 20 %}
+                                una alta frecuencia de gastos. Esto puede indicar gastos impulsivos o micro-pagos frecuentes.
+                            {% elif estadisticas.transacciones_30_dias > 10 %}
+                                una frecuencia moderada de gastos. Un buen balance entre control y flexibilidad.
+                            {% else %}
+                                una baja frecuencia de gastos. Esto sugiere gastos planificados y control financiero.
                             {% endif %}
                         </div>
                     </div>
@@ -440,8 +461,25 @@
                         <div class="insight-title">💰 Potencial de Optimización</div>
                         <div class="insight-description">
                             Basado en tus patrones actuales, podrías optimizar aproximadamente 
-                            S/. {{ estadisticas.total_30_dias|mul:0.15|floatformat:2 }} (15%) de tus gastos mensuales 
-                            mediante pequeños ajustes en tus hábitos de consumo.
+                            S/. {% widthratio estadisticas.total_30_dias 100 15 %} (15%) de tus gastos mensuales 
+                            mediante pequeños ajustes en tus hábitos de consumo. Esto incluye revisar gastos recurrentes, 
+                            buscar alternativas más económicas y eliminar gastos innecesarios.
+                        </div>
+                    </div>
+                    
+                    <div class="insight-item">
+                        <div class="insight-title">📊 Comparativa de Comportamiento</div>
+                        <div class="insight-description">
+                            {% if estadisticas.transacciones_30_dias > 0 %}
+                                Tu ticket promedio por transacción es de S/. {% widthratio estadisticas.total_30_dias estadisticas.transacciones_30_dias 1 %}.
+                                {% if estadisticas.transacciones_30_dias > 15 %}
+                                    Tienes muchas transacciones pequeñas, lo que puede indicar buenos hábitos de registro detallado.
+                                {% else %}
+                                    Tus transacciones son menos frecuentes pero de mayor valor, sugiriendo gastos más planificados.
+                                {% endif %}
+                            {% else %}
+                                Necesitas registrar más transacciones para generar comparativas precisas.
+                            {% endif %}
                         </div>
                     </div>
                 {% else %}
@@ -450,6 +488,7 @@
                         <div class="insight-description">
                             Para generar insights personalizados precisos, necesitamos más datos sobre tus gastos.
                             Registra al menos 10 transacciones para obtener análisis detallados de tus patrones financieros.
+                            El sistema aprende de tus hábitos y mejora las recomendaciones con más datos.
                         </div>
                     </div>
                 {% endif %}
@@ -459,7 +498,8 @@
                     <div class="insight-description">
                         Nuestro sistema de inteligencia artificial analiza tus patrones de gasto en tiempo real
                         para generar recomendaciones personalizadas que te ayuden a optimizar tus finanzas.
-                        Las recomendaciones se actualizan automáticamente cuando registras nuevos gastos.
+                        Las recomendaciones se actualizan automáticamente cuando registras nuevos gastos y 
+                        consideran factores como frecuencia, categorías principales, y tendencias temporales.
                     </div>
                 </div>
             </div>

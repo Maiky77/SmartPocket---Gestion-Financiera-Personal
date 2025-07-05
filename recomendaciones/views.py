@@ -222,8 +222,7 @@ def obtener_estadisticas_basicas(usuario):
     }
 
 def crear_recomendaciones_ejemplo(usuario):
-    """Crea recomendaciones de ejemplo basadas en los gastos reales del usuario"""
-    # CORREGIDO: Remover el filtro de 1 hora que impedía crear nuevas recomendaciones
+    """Crea recomendaciones variadas basadas en los gastos reales del usuario"""
     
     # Crear tipos de recomendación si no existen
     tipo_meta, _ = TipoRecomendacion.objects.get_or_create(
@@ -241,13 +240,31 @@ def crear_recomendaciones_ejemplo(usuario):
         defaults={'descripcion': 'Patrón de Gastos'}
     )
     
+    tipo_comparativa, _ = TipoRecomendacion.objects.get_or_create(
+        nombre='COMPARATIVA',
+        defaults={'descripcion': 'Comparativa con Promedio'}
+    )
+    
+    tipo_habito, _ = TipoRecomendacion.objects.get_or_create(
+        nombre='HABITO_FINANCIERO',
+        defaults={'descripcion': 'Hábito Financiero'}
+    )
+    
     # Obtener gastos del usuario
     gastos_usuario = Gasto.objects.filter(id_usuario=usuario)
     total_gastos = sum(float(gasto.monto) for gasto in gastos_usuario)
     count_gastos = gastos_usuario.count()
     
+    # Obtener gastos recientes (últimos 30 días)
+    hace_30_dias = timezone.now().date() - timedelta(days=30)
+    gastos_recientes = Gasto.objects.filter(
+        id_usuario=usuario,
+        fecha__gte=hace_30_dias
+    )
+    total_reciente = sum(float(gasto.monto) for gasto in gastos_recientes)
+    
     if total_gastos > 0:
-        # Recomendación 1: Meta de ahorro
+        # RECOMENDACIÓN 1: Meta de ahorro personalizada
         meta_ahorro = total_gastos * 0.15  # 15% de ahorro
         
         RecomendacionGenerada.objects.create(
@@ -262,7 +279,7 @@ def crear_recomendaciones_ejemplo(usuario):
             prioridad='MEDIA'
         )
         
-        # Recomendación 2: Análisis de frecuencia
+        # RECOMENDACIÓN 2: Análisis de frecuencia
         if count_gastos > 5:
             promedio_gasto = total_gastos / count_gastos
             
@@ -275,7 +292,7 @@ def crear_recomendaciones_ejemplo(usuario):
                 prioridad='ALTA'
             )
         
-        # Recomendación 3: Análisis por categorías
+        # RECOMENDACIÓN 3: Análisis por categorías (principal)
         gastos_por_categoria = {}
         for gasto in gastos_usuario:
             categoria = gasto.tipo_gasto.get_nombre_display()
@@ -286,54 +303,166 @@ def crear_recomendaciones_ejemplo(usuario):
             monto_mayor = gastos_por_categoria[categoria_mayor]
             porcentaje_categoria = (monto_mayor / total_gastos) * 100
             
-            if porcentaje_categoria > 30:  # Si una categoría es más del 30%
-                RecomendacionGenerada.objects.create(
-                    usuario=usuario,
-                    tipo_recomendacion=tipo_patron,
-                    titulo=f"⚠️ Alto Gasto en {categoria_mayor}",
-                    mensaje=f"Tu categoría '{categoria_mayor}' representa {porcentaje_categoria:.1f}% de tus gastos totales (S/. {monto_mayor:.2f}). Considera estrategias específicas para optimizar esta área.",
-                    valor_actual=Decimal(str(monto_mayor)),
-                    porcentaje_impacto=Decimal(str(porcentaje_categoria)),
-                    prioridad='ALTA'
-                )
-            
-            # Recomendación 4: Recomendación específica basada en la categoría mayor
+            RecomendacionGenerada.objects.create(
+                usuario=usuario,
+                tipo_recomendacion=tipo_patron,
+                titulo=f"⚠️ Alto Gasto en {categoria_mayor}",
+                mensaje=f"Tu categoría '{categoria_mayor}' representa {porcentaje_categoria:.1f}% de tus gastos totales (S/. {monto_mayor:.2f}). Considera estrategias específicas para optimizar esta área.",
+                valor_actual=Decimal(str(monto_mayor)),
+                porcentaje_impacto=Decimal(str(porcentaje_categoria)),
+                prioridad='ALTA' if porcentaje_categoria > 40 else 'MEDIA'
+            )
+        
+        # RECOMENDACIÓN 4: Comparativa con promedio ideal
+        gasto_promedio_ideal = 500  # Promedio ideal mensual para usuarios similares
+        
+        if total_reciente > gasto_promedio_ideal:
+            diferencia = total_reciente - gasto_promedio_ideal
+            RecomendacionGenerada.objects.create(
+                usuario=usuario,
+                tipo_recomendacion=tipo_comparativa,
+                titulo="📊 Comparativa con Promedio Ideal",
+                mensaje=f"Tus gastos mensuales (S/. {total_reciente:.2f}) superan el promedio ideal de S/. {gasto_promedio_ideal:.2f} en S/. {diferencia:.2f}. Identifica gastos no esenciales para optimizar.",
+                valor_actual=Decimal(str(total_reciente)),
+                valor_objetivo=Decimal(str(gasto_promedio_ideal)),
+                ahorro_potencial=Decimal(str(diferencia)),
+                prioridad='ALTA'
+            )
+        else:
+            RecomendacionGenerada.objects.create(
+                usuario=usuario,
+                tipo_recomendacion=tipo_comparativa,
+                titulo="✅ Gastos Controlados",
+                mensaje=f"¡Felicidades! Tus gastos mensuales (S/. {total_reciente:.2f}) están por debajo del promedio ideal. Mantén estos buenos hábitos financieros.",
+                valor_actual=Decimal(str(total_reciente)),
+                valor_objetivo=Decimal(str(gasto_promedio_ideal)),
+                prioridad='BAJA'
+            )
+        
+        # RECOMENDACIÓN 5: Hábito de registro
+        if count_gastos >= 10:
+            RecomendacionGenerada.objects.create(
+                usuario=usuario,
+                tipo_recomendacion=tipo_habito,
+                titulo="📝 Excelente Hábito de Registro",
+                mensaje=f"Has registrado {count_gastos} gastos, demostrando un excelente hábito de seguimiento. Mantén esta disciplina para maximizar el control de tus finanzas.",
+                valor_actual=Decimal(str(count_gastos)),
+                prioridad='BAJA'
+            )
+        else:
+            RecomendacionGenerada.objects.create(
+                usuario=usuario,
+                tipo_recomendacion=tipo_habito,
+                titulo="📈 Mejora tu Hábito de Registro",
+                mensaje=f"Has registrado {count_gastos} gastos. Intenta registrar al menos 15-20 gastos mensuales para obtener insights más precisos y recomendaciones personalizadas.",
+                valor_actual=Decimal(str(count_gastos)),
+                valor_objetivo=Decimal('20'),
+                prioridad='MEDIA'
+            )
+        
+        # RECOMENDACIÓN 6: Específica por categoría principal
+        if gastos_por_categoria:
             if categoria_mayor == "Comida":
+                ahorro_comida = monto_mayor * 0.25
                 RecomendacionGenerada.objects.create(
                     usuario=usuario,
                     tipo_recomendacion=tipo_analisis,
                     titulo="🍽️ Optimiza tus Gastos en Comida",
-                    mensaje=f"Gastas S/. {monto_mayor:.2f} en comida. Considera cocinar más en casa, planificar menús semanales o buscar opciones más económicas. Podrías ahorrar hasta S/. {monto_mayor * 0.25:.2f} mensuales.",
+                    mensaje=f"Gastas S/. {monto_mayor:.2f} en comida. Estrategias: cocinar en casa (3 días/semana), planificar menús, comprar al por mayor. Ahorro estimado: S/. {ahorro_comida:.2f}/mes.",
                     valor_actual=Decimal(str(monto_mayor)),
-                    ahorro_potencial=Decimal(str(monto_mayor * 0.25)),
+                    ahorro_potencial=Decimal(str(ahorro_comida)),
+                    porcentaje_impacto=Decimal('25.00'),
                     prioridad='MEDIA'
                 )
             elif categoria_mayor == "Transporte":
+                ahorro_transporte = monto_mayor * 0.20
                 RecomendacionGenerada.objects.create(
                     usuario=usuario,
                     tipo_recomendacion=tipo_analisis,
                     titulo="🚗 Optimiza tus Gastos en Transporte",
-                    mensaje=f"Gastas S/. {monto_mayor:.2f} en transporte. Considera usar transporte público, caminar más o compartir viajes. Podrías ahorrar hasta S/. {monto_mayor * 0.20:.2f} mensuales.",
+                    mensaje=f"Gastas S/. {monto_mayor:.2f} en transporte. Considera: transporte público, bicicleta, caminar distancias cortas, carpooling. Ahorro estimado: S/. {ahorro_transporte:.2f}/mes.",
                     valor_actual=Decimal(str(monto_mayor)),
-                    ahorro_potencial=Decimal(str(monto_mayor * 0.20)),
+                    ahorro_potencial=Decimal(str(ahorro_transporte)),
+                    porcentaje_impacto=Decimal('20.00'),
                     prioridad='MEDIA'
                 )
             elif categoria_mayor == "Entretenimiento":
+                ahorro_entretenimiento = monto_mayor * 0.30
                 RecomendacionGenerada.objects.create(
                     usuario=usuario,
                     tipo_recomendacion=tipo_analisis,
                     titulo="🎮 Optimiza tus Gastos en Entretenimiento",
-                    mensaje=f"Gastas S/. {monto_mayor:.2f} en entretenimiento. Busca actividades gratuitas o promociones especiales. Podrías ahorrar hasta S/. {monto_mayor * 0.30:.2f} mensuales.",
+                    mensaje=f"Gastas S/. {monto_mayor:.2f} en entretenimiento. Busca: actividades gratuitas, promociones 2x1, eventos comunitarios, streaming compartido. Ahorro estimado: S/. {ahorro_entretenimiento:.2f}/mes.",
                     valor_actual=Decimal(str(monto_mayor)),
-                    ahorro_potencial=Decimal(str(monto_mayor * 0.30)),
+                    ahorro_potencial=Decimal(str(ahorro_entretenimiento)),
+                    porcentaje_impacto=Decimal('30.00'),
                     prioridad='BAJA'
                 )
+            elif categoria_mayor == "Educación":
+                RecomendacionGenerada.objects.create(
+                    usuario=usuario,
+                    tipo_recomendacion=tipo_analisis,
+                    titulo="📚 Inversión en Educación",
+                    mensaje=f"Gastas S/. {monto_mayor:.2f} en educación. ¡Excelente inversión! Considera recursos gratuitos online, bibliotecas, cursos en línea masivos para complementar.",
+                    valor_actual=Decimal(str(monto_mayor)),
+                    prioridad='BAJA'
+                )
+            else:
+                # Para otras categorías
+                ahorro_generico = monto_mayor * 0.15
+                RecomendacionGenerada.objects.create(
+                    usuario=usuario,
+                    tipo_recomendacion=tipo_analisis,
+                    titulo=f"💰 Optimiza Gastos en {categoria_mayor}",
+                    mensaje=f"Tu gasto principal es {categoria_mayor} (S/. {monto_mayor:.2f}). Revisa si todos estos gastos son necesarios y busca alternativas más económicas.",
+                    valor_actual=Decimal(str(monto_mayor)),
+                    ahorro_potencial=Decimal(str(ahorro_generico)),
+                    porcentaje_impacto=Decimal('15.00'),
+                    prioridad='MEDIA'
+                )
+        
+        # RECOMENDACIÓN 7: Análisis temporal (si hay gastos recientes)
+        if gastos_recientes.exists():
+            if total_reciente > total_gastos * 0.5:  # Si el 50% de gastos son del último mes
+                RecomendacionGenerada.objects.create(
+                    usuario=usuario,
+                    tipo_recomendacion=tipo_patron,
+                    titulo="📈 Actividad Financiera Reciente",
+                    mensaje=f"Has tenido alta actividad financiera reciente (S/. {total_reciente:.2f} en 30 días). Es buen momento para revisar y ajustar tu presupuesto mensual.",
+                    valor_actual=Decimal(str(total_reciente)),
+                    prioridad='MEDIA'
+                )
     else:
-        # Recomendación para usuarios sin gastos
+        # Para usuarios sin gastos - crear recomendaciones motivacionales
+        RecomendacionGenerada.objects.create(
+            usuario=usuario,
+            tipo_recomendacion=tipo_habito,
+            titulo="🚀 Comienza tu Viaje Financiero",
+            mensaje="¡Bienvenido a SmartPocket! Registra tus primeros gastos para comenzar a recibir recomendaciones personalizadas. Incluso gastos pequeños ayudan a entender tus patrones.",
+            prioridad='ALTA'
+        )
+        
+        RecomendacionGenerada.objects.create(
+            usuario=usuario,
+            tipo_recomendacion=tipo_meta,
+            titulo="🎯 Establece tu Primera Meta",
+            mensaje="Define un presupuesto mensual inicial (ej: S/. 500) y comienza a registrar tus gastos. El sistema aprenderá de tus hábitos para generar mejores recomendaciones.",
+            valor_objetivo=Decimal('500.00'),
+            prioridad='MEDIA'
+        )
+        
         RecomendacionGenerada.objects.create(
             usuario=usuario,
             tipo_recomendacion=tipo_patron,
-            titulo="📝 Comienza a Registrar tus Gastos",
-            mensaje="Para generar recomendaciones personalizadas precisas, comienza registrando tus gastos diarios. Incluso gastos pequeños pueden revelar patrones importantes para tu salud financiera.",
+            titulo="📊 Descubre tus Patrones",
+            mensaje="Registra gastos de diferentes categorías durante una semana. Esto permitirá que la IA identifique tus patrones de consumo y genere insights valiosos.",
+            prioridad='MEDIA'
+        )
+        
+        RecomendacionGenerada.objects.create(
+            usuario=usuario,
+            tipo_recomendacion=tipo_analisis,
+            titulo="💡 Consejos para Empezar",
+            mensaje="Tips iniciales: 1) Registra TODO gasto (grande o pequeño), 2) Usa categorías correctas, 3) Sé consistente. En 1 semana tendrás tus primeras recomendaciones personalizadas.",
             prioridad='BAJA'
         )
