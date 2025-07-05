@@ -18,14 +18,21 @@ def recomendaciones_view(request):
     # Generar recomendaciones si el usuario hace clic en el botón
     if request.method == 'POST' and 'generar_recomendaciones' in request.POST:
         try:
+            # CORREGIDO: Desactivar recomendaciones anteriores antes de crear nuevas
+            RecomendacionGenerada.objects.filter(
+                usuario=request.user,
+                activa=True
+            ).update(activa=False)
+            
+            # Crear nuevas recomendaciones
             crear_recomendaciones_ejemplo(request.user)
-            messages.success(request, 'Se generaron nuevas recomendaciones personalizadas.')
+            messages.success(request, '🎉 Se generaron nuevas recomendaciones personalizadas basadas en tus últimos gastos.')
         except Exception as e:
             messages.error(request, f'Error al generar recomendaciones: {str(e)}')
         
         return redirect('recomendaciones:recomendaciones')
     
-    # Obtener recomendaciones activas del usuario (SIN filtros complejos)
+    # Obtener recomendaciones activas del usuario
     recomendaciones = RecomendacionGenerada.objects.filter(
         usuario=request.user,
         activa=True
@@ -42,14 +49,14 @@ def recomendaciones_view(request):
             ).order_by('-fecha_generacion')
             
             if recomendaciones.exists():
-                messages.success(request, 'Se generaron recomendaciones personalizadas basadas en tus gastos.')
+                messages.success(request, '✨ Se generaron recomendaciones personalizadas basadas en tus gastos.')
         except Exception as e:
             messages.error(request, f'Error generando recomendaciones: {str(e)}')
     
     # Obtener estadísticas básicas
     estadisticas = obtener_estadisticas_basicas(request.user)
     
-    # Contar recomendaciones por prioridad (SIN usar queryset sliced)
+    # Contar recomendaciones por prioridad
     total_recomendaciones = recomendaciones.count()
     criticas = 0
     altas = 0
@@ -75,7 +82,7 @@ def recomendaciones_view(request):
     }
     
     context = {
-        'recomendaciones': recomendaciones[:10],  # Limitar a 10 en el template
+        'recomendaciones': recomendaciones[:10],
         'estadisticas': estadisticas,
         'recomendaciones_count': recomendaciones_count,
         'tiene_gastos_suficientes': Gasto.objects.filter(id_usuario=request.user).count() >= 1,
@@ -96,8 +103,8 @@ def marcar_vista_ajax(request, recomendacion_id):
             recomendacion.save()
             return JsonResponse({'success': True})
         except RecomendacionGenerada.DoesNotExist:
-            return JsonResponse({'success': False})
-    return JsonResponse({'success': False})
+            return JsonResponse({'success': False, 'error': 'Recomendación no encontrada'})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
 @login_required
 def marcar_aplicada_ajax(request, recomendacion_id):
@@ -111,24 +118,27 @@ def marcar_aplicada_ajax(request, recomendacion_id):
             recomendacion.aplicada = True
             recomendacion.vista = True
             recomendacion.save()
-            return JsonResponse({'success': True})
+            return JsonResponse({
+                'success': True, 
+                'message': '✅ Recomendación marcada como aplicada'
+            })
         except RecomendacionGenerada.DoesNotExist:
-            return JsonResponse({'success': False})
-    return JsonResponse({'success': False})
+            return JsonResponse({'success': False, 'error': 'Recomendación no encontrada'})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
 @login_required
 def descartar_recomendacion(request, recomendacion_id):
-    """Descarta una recomendación"""
+    """Descarta una recomendación - CORREGIDO: acepta GET"""
     recomendacion = get_object_or_404(
         RecomendacionGenerada, 
         id_recomendacion=recomendacion_id, 
         usuario=request.user
     )
     
-    if request.method == 'POST':
-        recomendacion.activa = False
-        recomendacion.save()
-        messages.info(request, 'Recomendación descartada.')
+    # CORREGIDO: Funciona con GET (el enlace del template)
+    recomendacion.activa = False
+    recomendacion.save()
+    messages.info(request, '❌ Recomendación descartada correctamente.')
     
     return redirect('recomendaciones:recomendaciones')
 
@@ -161,7 +171,7 @@ def regenerar_recomendaciones(request):
             
             # Generar nuevas
             crear_recomendaciones_ejemplo(request.user)
-            messages.success(request, 'Se regeneraron las recomendaciones.')
+            messages.success(request, '🔄 Se regeneraron todas las recomendaciones.')
         except Exception as e:
             messages.error(request, f'Error al regenerar: {str(e)}')
     
@@ -213,14 +223,7 @@ def obtener_estadisticas_basicas(usuario):
 
 def crear_recomendaciones_ejemplo(usuario):
     """Crea recomendaciones de ejemplo basadas en los gastos reales del usuario"""
-    # Verificar si ya existen recomendaciones recientes
-    fecha_limite = timezone.now() - timedelta(hours=1)  # 1 hora
-    if RecomendacionGenerada.objects.filter(
-        usuario=usuario,
-        fecha_generacion__gte=fecha_limite,
-        activa=True
-    ).exists():
-        return  # Ya hay recomendaciones muy recientes
+    # CORREGIDO: Remover el filtro de 1 hora que impedía crear nuevas recomendaciones
     
     # Crear tipos de recomendación si no existen
     tipo_meta, _ = TipoRecomendacion.objects.get_or_create(
@@ -250,7 +253,7 @@ def crear_recomendaciones_ejemplo(usuario):
         RecomendacionGenerada.objects.create(
             usuario=usuario,
             tipo_recomendacion=tipo_meta,
-            titulo="Meta de Ahorro Personalizada",
+            titulo="🎯 Meta de Ahorro Personalizada",
             mensaje=f"Basado en tus gastos totales de S/. {total_gastos:.2f}, puedes establecer una meta de ahorro de S/. {meta_ahorro:.2f} (15%). Esto es alcanzable optimizando gastos pequeños diarios.",
             valor_actual=Decimal(str(total_gastos)),
             valor_objetivo=Decimal(str(total_gastos - meta_ahorro)),
@@ -266,7 +269,7 @@ def crear_recomendaciones_ejemplo(usuario):
             RecomendacionGenerada.objects.create(
                 usuario=usuario,
                 tipo_recomendacion=tipo_analisis,
-                titulo="Optimización de Gastos Frecuentes",
+                titulo="💡 Optimización de Gastos Frecuentes",
                 mensaje=f"Has registrado {count_gastos} gastos con un promedio de S/. {promedio_gasto:.2f} por transacción. Revisar tus gastos más frecuentes puede revelar oportunidades de ahorro significativo.",
                 valor_actual=Decimal(str(promedio_gasto)),
                 prioridad='ALTA'
@@ -287,18 +290,50 @@ def crear_recomendaciones_ejemplo(usuario):
                 RecomendacionGenerada.objects.create(
                     usuario=usuario,
                     tipo_recomendacion=tipo_patron,
-                    titulo=f"Alto Gasto en {categoria_mayor}",
+                    titulo=f"⚠️ Alto Gasto en {categoria_mayor}",
                     mensaje=f"Tu categoría '{categoria_mayor}' representa {porcentaje_categoria:.1f}% de tus gastos totales (S/. {monto_mayor:.2f}). Considera estrategias específicas para optimizar esta área.",
                     valor_actual=Decimal(str(monto_mayor)),
                     porcentaje_impacto=Decimal(str(porcentaje_categoria)),
                     prioridad='ALTA'
+                )
+            
+            # Recomendación 4: Recomendación específica basada en la categoría mayor
+            if categoria_mayor == "Comida":
+                RecomendacionGenerada.objects.create(
+                    usuario=usuario,
+                    tipo_recomendacion=tipo_analisis,
+                    titulo="🍽️ Optimiza tus Gastos en Comida",
+                    mensaje=f"Gastas S/. {monto_mayor:.2f} en comida. Considera cocinar más en casa, planificar menús semanales o buscar opciones más económicas. Podrías ahorrar hasta S/. {monto_mayor * 0.25:.2f} mensuales.",
+                    valor_actual=Decimal(str(monto_mayor)),
+                    ahorro_potencial=Decimal(str(monto_mayor * 0.25)),
+                    prioridad='MEDIA'
+                )
+            elif categoria_mayor == "Transporte":
+                RecomendacionGenerada.objects.create(
+                    usuario=usuario,
+                    tipo_recomendacion=tipo_analisis,
+                    titulo="🚗 Optimiza tus Gastos en Transporte",
+                    mensaje=f"Gastas S/. {monto_mayor:.2f} en transporte. Considera usar transporte público, caminar más o compartir viajes. Podrías ahorrar hasta S/. {monto_mayor * 0.20:.2f} mensuales.",
+                    valor_actual=Decimal(str(monto_mayor)),
+                    ahorro_potencial=Decimal(str(monto_mayor * 0.20)),
+                    prioridad='MEDIA'
+                )
+            elif categoria_mayor == "Entretenimiento":
+                RecomendacionGenerada.objects.create(
+                    usuario=usuario,
+                    tipo_recomendacion=tipo_analisis,
+                    titulo="🎮 Optimiza tus Gastos en Entretenimiento",
+                    mensaje=f"Gastas S/. {monto_mayor:.2f} en entretenimiento. Busca actividades gratuitas o promociones especiales. Podrías ahorrar hasta S/. {monto_mayor * 0.30:.2f} mensuales.",
+                    valor_actual=Decimal(str(monto_mayor)),
+                    ahorro_potencial=Decimal(str(monto_mayor * 0.30)),
+                    prioridad='BAJA'
                 )
     else:
         # Recomendación para usuarios sin gastos
         RecomendacionGenerada.objects.create(
             usuario=usuario,
             tipo_recomendacion=tipo_patron,
-            titulo="Comienza a Registrar tus Gastos",
+            titulo="📝 Comienza a Registrar tus Gastos",
             mensaje="Para generar recomendaciones personalizadas precisas, comienza registrando tus gastos diarios. Incluso gastos pequeños pueden revelar patrones importantes para tu salud financiera.",
             prioridad='BAJA'
         )

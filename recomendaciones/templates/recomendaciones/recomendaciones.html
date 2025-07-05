@@ -649,55 +649,67 @@
     </div>
     
     <script>
-        function marcarAplicada(recomendacionId) {
-            fetch(`/recomendaciones/ajax/aplicada/${recomendacionId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Recargar la página para mostrar el mensaje de éxito
-                    location.reload();
-                } else {
-                    alert('Error al marcar la recomendación como aplicada');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error de conexión');
-            });
-        }
-        
-        // Marcar recomendaciones como vistas al hacer scroll
-        function marcarVista(recomendacionId) {
-            fetch(`/recomendaciones/ajax/vista/${recomendacionId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                },
-            });
-        }
-        
-        // Observer para marcar como vistas
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const recomendacionId = entry.target.dataset.recomendacionId;
-                    if (recomendacionId) {
-                        marcarVista(recomendacionId);
-                    }
-                }
-            });
-        }, { threshold: 0.5 });
-        
-        // Observar todas las tarjetas de recomendación
-        document.querySelectorAll('.recommendation-card').forEach(card => {
-            observer.observe(card);
+    function marcarAplicada(recomendacionId) {
+        fetch(`/recomendaciones/ajax/aplicada/${recomendacionId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mostrar mensaje de éxito
+                alert('✅ ' + (data.message || 'Recomendación aplicada correctamente'));
+                // Recargar la página para actualizar la vista
+                location.reload();
+            } else {
+                alert('❌ Error: ' + (data.error || 'Error al marcar la recomendación como aplicada'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ Error de conexión. Inténtalo de nuevo.');
         });
+    }
+
+    // Marcar recomendaciones como vistas al hacer scroll
+    function marcarVista(recomendacionId) {
+        fetch(`/recomendaciones/ajax/vista/${recomendacionId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        });
+    }
+
+    // Observer para marcar como vistas
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const recomendacionId = entry.target.dataset.recomendacionId;
+                if (recomendacionId) {
+                    marcarVista(recomendacionId);
+                }
+            }
+        });
+    }, { threshold: 0.5 });
+
+    // Observar todas las tarjetas de recomendación
+    document.querySelectorAll('.recommendation-card').forEach(card => {
+        observer.observe(card);
+    });
+
+    // Mejorar UX de botón "Descartar"
+    document.querySelectorAll('.btn-descartar').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('¿Estás seguro de que quieres descartar esta recomendación?')) {
+                window.location.href = this.href;
+            }
+        });
+    });
     </script>
 </body>
 </html>
