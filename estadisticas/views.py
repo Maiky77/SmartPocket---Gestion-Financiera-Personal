@@ -194,20 +194,16 @@ def obtener_datos_graficos(usuario):
         }
 
 def obtener_gastos_mensuales(usuario):
-    """Obtiene gastos agrupados por semana para gráfico de líneas - MEJORADO PARA MÁS PUNTOS"""
-    hoy = timezone.now().date()
-    hace_8_semanas = hoy - timedelta(weeks=8)
+    """Versión SIMPLE Y FUNCIONAL - Sin complicaciones"""
     
-    gastos = Gasto.objects.filter(
-        id_usuario=usuario,
-        fecha__gte=hace_8_semanas
-    ).order_by('fecha')
+    # Obtener TODOS los gastos del usuario
+    gastos = Gasto.objects.filter(id_usuario=usuario).order_by('fecha')
     
     if not gastos.exists():
         return {
             'labels': [],
             'datasets': [{
-                'label': 'Gastos Semanales (S/.)',
+                'label': 'Gastos Diarios (S/.)',
                 'data': [],
                 'borderColor': 'rgb(102, 126, 234)',
                 'backgroundColor': 'rgba(102, 126, 234, 0.1)',
@@ -216,45 +212,49 @@ def obtener_gastos_mensuales(usuario):
             }]
         }
     
-    # Agrupar por semana en lugar de mes para más puntos de datos
-    gastos_por_semana = {}
+    # SIMPLE: Crear diccionario fecha -> gasto
+    gastos_por_fecha = {}
     
-    # Generar todas las semanas en el rango
-    fecha_actual = hace_8_semanas
-    while fecha_actual <= hoy:
-        # Encontrar el lunes de la semana
-        inicio_semana = fecha_actual - timedelta(days=fecha_actual.weekday())
-        semana_key = inicio_semana.strftime('%Y-%m-%d')
-        
-        if semana_key not in gastos_por_semana:
-            gastos_por_semana[semana_key] = {
-                'total': 0,
-                'label': inicio_semana.strftime('%d/%m')
-            }
-        
-        fecha_actual += timedelta(days=7)
-    
-    # Agregar gastos reales a las semanas
+    print(f"📊 PROCESANDO {gastos.count()} GASTOS:")
     for gasto in gastos:
-        inicio_semana = gasto.fecha - timedelta(days=gasto.fecha.weekday())
-        semana_key = inicio_semana.strftime('%Y-%m-%d')
+        fecha_str = gasto.fecha.strftime('%d/%m')
+        if fecha_str not in gastos_por_fecha:
+            gastos_por_fecha[fecha_str] = 0
+        gastos_por_fecha[fecha_str] += float(gasto.monto)
+        print(f"   {gasto.fecha} ({fecha_str}): {gasto.descripcion} = S/. {gasto.monto}")
+    
+    # Ordenar por fecha original para mantener secuencia
+    gastos_ordenados = []
+    for gasto in gastos:
+        fecha_str = gasto.fecha.strftime('%d/%m')
+        fecha_valor = gastos_por_fecha.get(fecha_str, 0)
         
-        if semana_key in gastos_por_semana:
-            gastos_por_semana[semana_key]['total'] += float(gasto.monto)
+        # Evitar duplicados
+        if not any(item[0] == fecha_str for item in gastos_ordenados):
+            gastos_ordenados.append((fecha_str, fecha_valor))
     
-    # Convertir a formato para Chart.js - ordenado por fecha
-    semanas_ordenadas = sorted(gastos_por_semana.items())
+    # Separar labels y data
+    labels = [item[0] for item in gastos_ordenados]
+    data = [round(item[1], 2) for item in gastos_ordenados]
     
-    labels = []
-    data = []
-    for semana_key, semana_data in semanas_ordenadas:
-        labels.append(semana_data['label'])
-        data.append(round(semana_data['total'], 2))
+    # Estadísticas
+    total_gastado = sum(data)
+    dias_con_gastos = len([d for d in data if d > 0])
+    promedio_diario = total_gastado / len(data) if len(data) > 0 else 0
+    gasto_maximo = max(data) if data else 0
+    
+    primer_gasto = gastos.first()
+    ultimo_gasto = gastos.last()
+    
+    print(f"📊 RESULTADO FINAL:")
+    print(f"   Labels: {labels}")
+    print(f"   Data: {data}")
+    print(f"   Total: S/. {total_gastado}")
     
     return {
         'labels': labels,
         'datasets': [{
-            'label': 'Gastos Semanales (S/.)',
+            'label': 'Gastos Diarios (S/.)',
             'data': data,
             'borderColor': 'rgb(102, 126, 234)',
             'backgroundColor': 'rgba(102, 126, 234, 0.1)',
@@ -265,7 +265,16 @@ def obtener_gastos_mensuales(usuario):
             'pointBorderWidth': 2,
             'pointRadius': 5,
             'pointHoverRadius': 7
-        }]
+        }],
+        'estadisticas': {
+            'total_periodo': round(total_gastado, 2),
+            'dias_con_gastos': dias_con_gastos,
+            'total_dias': len(data),
+            'promedio_diario': round(promedio_diario, 2),
+            'gasto_maximo': round(gasto_maximo, 2),
+            'fecha_inicio': primer_gasto.fecha.strftime('%d/%m/%Y'),
+            'fecha_fin': ultimo_gasto.fecha.strftime('%d/%m/%Y')
+        }
     }
 
 def obtener_gastos_por_categoria(usuario):

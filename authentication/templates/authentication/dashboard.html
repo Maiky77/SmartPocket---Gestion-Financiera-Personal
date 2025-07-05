@@ -657,9 +657,7 @@
                                 <div class="activity-content">
                                     <div class="activity-title">{{ gasto.descripcion|truncatechars:30 }}</div>
                                     <div class="activity-subtitle">
-                                        {% if gasto.fecha == fecha_actual %}Hoy
-                                        {% else %}{{ gasto.fecha|timesince }} · {% endif %}
-                                        {{ gasto.tipo_gasto.get_nombre_display }}
+                                        {{ gasto.tiempo_relativo }} · {{ gasto.tipo_gasto.get_nombre_display }}
                                     </div>
                                 </div>
                                 <div class="activity-amount">-S/. {{ gasto.monto|floatformat:2 }}</div>

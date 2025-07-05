@@ -708,60 +708,131 @@
     </div>
 
     <script>
-        // JavaScript para funcionalidad del perfil
-        
-        // Previsualizar foto antes de subir
-        document.getElementById('id_foto_perfil').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Validar tamaño (5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('La imagen no puede superar los 5MB.');
-                    return;
-                }
-                
-                // Validar tipo
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Solo se permiten imágenes JPG, PNG o GIF.');
-                    return;
-                }
-                
-                // Previsualizar
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const fotoContainer = document.querySelector('.foto-perfil');
-                    fotoContainer.classList.add('has-image');
-                    fotoContainer.innerHTML = `<img src="${e.target.result}" alt="Foto de perfil" id="foto-preview">`;
-                };
-                reader.readAsDataURL(file);
-                
-                // Auto-enviar formulario de foto
-                document.getElementById('foto-form').submit();
-            }
+        // === CONTROL DE SCROLL - FORZAR INICIO ===
+        function forceScrollTop() {
+            window.scrollTo({top: 0, left: 0, behavior: 'auto'});
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+
+        // Ejecutar inmediatamente
+        forceScrollTop();
+
+        // Al cargar DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            forceScrollTop();
         });
-        
-        // Función para guardar perfil
-        function guardarPerfil() {
-            // Recopilar datos del formulario de información personal
-            const form = document.getElementById('perfil-form');
-            const descripcionForm = document.getElementById('descripcion-form');
-            
-            // Copiar valor de descripción al formulario principal
-            const descripcionTextarea = descripcionForm.querySelector('textarea');
-            if (descripcionTextarea) {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'descripcion_corta';
-                hiddenInput.value = descripcionTextarea.value;
-                form.appendChild(hiddenInput);
-            }
-            
-            // Enviar formulario
-            form.submit();
+
+        // Al cargar completamente
+        window.addEventListener('load', function() {
+            forceScrollTop();
+            // Esperar un poco más y forzar de nuevo
+            setTimeout(forceScrollTop, 100);
+            setTimeout(forceScrollTop, 500);
+        });
+
+        // Prevenir scroll durante animaciones
+        document.addEventListener('animationstart', function() {
+            forceScrollTop();
+        });
+
+        // === FUNCIONALIDAD DE FOTO DE PERFIL ===
+
+// === FUNCIONALIDAD DE FOTO DE PERFIL CORREGIDA ===
+document.getElementById('id_foto_perfil').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Validar tamaño (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('La imagen no puede superar los 5MB.');
+            return;
         }
         
-        // Validación en tiempo real para contraseñas
+        // Validar tipo
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+            alert('Solo se permiten imágenes JPG, PNG o GIF.');
+            return;
+        }
+        
+        // Previsualizar
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const fotoContainer = document.querySelector('.foto-perfil');
+            fotoContainer.classList.add('has-image');
+            fotoContainer.innerHTML = `<img src="${e.target.result}" alt="Foto de perfil" id="foto-preview">`;
+        };
+        reader.readAsDataURL(file);
+        
+        // === PRESERVAR DATOS ANTES DE ENVIAR ===
+        const fotoForm = document.getElementById('foto-form');
+        
+        // Obtener valores actuales de otros formularios
+        const perfilForm = document.getElementById('perfil-form');
+        const descripcionForm = document.getElementById('descripcion-form');
+        
+        // Extraer valores de información personal
+        const firstName = perfilForm.querySelector('input[name="first_name"]')?.value || '';
+        const lastName = perfilForm.querySelector('input[name="last_name"]')?.value || '';
+        const telefono = perfilForm.querySelector('input[name="telefono"]')?.value || '';
+        
+        // Extraer valor de descripción
+        const descripcion = descripcionForm.querySelector('textarea[name="descripcion_corta"]')?.value || '';
+        
+        // Agregar campos ocultos al formulario de foto para preservar datos
+        const hiddenInputs = [
+            { name: 'first_name', value: firstName },
+            { name: 'last_name', value: lastName },
+            { name: 'telefono', value: telefono },
+            { name: 'descripcion_corta', value: descripcion }
+        ];
+        
+        // Limpiar inputs ocultos previos para evitar duplicados
+        const existingHiddenInputs = fotoForm.querySelectorAll('input[type="hidden"]:not([name="actualizar_perfil"]):not([name="csrfmiddlewaretoken"])');
+        existingHiddenInputs.forEach(input => input.remove());
+        
+        // Agregar los nuevos inputs ocultos
+        hiddenInputs.forEach(inputData => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = inputData.name;
+            hiddenInput.value = inputData.value;
+            fotoForm.appendChild(hiddenInput);
+        });
+        
+        // Enviar formulario con todos los datos
+        fotoForm.submit();
+    }
+});
+
+        // === FUNCIÓN GUARDAR PERFIL ===
+// === FUNCIÓN GUARDAR PERFIL MEJORADA ===
+function guardarPerfil() {
+    const form = document.getElementById('perfil-form');
+    const descripcionForm = document.getElementById('descripcion-form');
+    
+    // Copiar valor de descripción al formulario principal
+    const descripcionTextarea = descripcionForm.querySelector('textarea');
+    if (descripcionTextarea) {
+        // Eliminar input oculto previo si existe
+        const existingHidden = form.querySelector('input[name="descripcion_corta"]');
+        if (existingHidden) {
+            existingHidden.remove();
+        }
+        
+        // Crear nuevo input oculto
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'descripcion_corta';
+        hiddenInput.value = descripcionTextarea.value;
+        form.appendChild(hiddenInput);
+    }
+    
+    // Enviar formulario
+    form.submit();
+}
+
+        // === VALIDACIÓN DE CONTRASEÑAS ===
         const passwordInputs = document.querySelectorAll('#password-form input[type="password"]');
         passwordInputs.forEach(input => {
             input.addEventListener('input', function() {
@@ -776,11 +847,11 @@
                 }
             });
         });
-        
+
         // Validar confirmación de contraseña
         const newPassword = document.querySelector('input[name="new_password1"]');
         const confirmPassword = document.querySelector('input[name="new_password2"]');
-        
+
         if (newPassword && confirmPassword) {
             confirmPassword.addEventListener('input', function() {
                 if (this.value !== newPassword.value && this.value.length > 0) {
@@ -792,42 +863,64 @@
                 }
             });
         }
-        
-        // Animar gráficos al cargar
-        window.addEventListener('load', function() {
-            const bars = document.querySelectorAll('.bar');
-            bars.forEach((bar, index) => {
-                setTimeout(() => {
-                    bar.style.opacity = '0';
-                    bar.style.height = '0';
-                    setTimeout(() => {
-                        bar.style.transition = 'all 0.8s ease';
-                        bar.style.opacity = '1';
-                        bar.classList.forEach(className => {
-                            if (className.startsWith('bar')) {
-                                switch(className) {
-                                    case 'bar1': bar.style.height = '30%'; break;
-                                    case 'bar2': bar.style.height = '45%'; break;
-                                    case 'bar3': bar.style.height = '60%'; break;
-                                    case 'bar4': bar.style.height = '50%'; break;
-                                    case 'bar5': bar.style.height = '70%'; break;
-                                }
-                            }
-                        });
-                    }, 100);
-                }, index * 150);
-            });
+
+        // === ANIMACIONES SIN SCROLL (VERSIÓN SEGURA) ===
+        setTimeout(function() {
+            // Asegurar posición antes de animar
+            forceScrollTop();
             
-            // Animar gráfico circular
+            // Obtener elementos sin causar reflow
+            const bars = document.querySelectorAll('.bar');
             const pieChart = document.querySelector('.pie-chart');
-            if (pieChart) {
-                setTimeout(() => {
-                    pieChart.style.transform = 'scale(0)';
+            
+            // Animar barras de forma segura
+            if (bars.length > 0) {
+                bars.forEach((bar, index) => {
+                    // No cambiar display ni visibility, solo opacity y transform
+                    bar.style.opacity = '0.3';
+                    bar.style.transform = 'scaleY(0.1)';
+                    
                     setTimeout(() => {
-                        pieChart.style.transition = 'all 0.8s ease';
-                        pieChart.style.transform = 'scale(1)';
-                    }, 100);
-                }, 800);
+                        bar.style.transition = 'all 0.4s ease';
+                        bar.style.opacity = '1';
+                        bar.style.transform = 'scaleY(1)';
+                    }, index * 80);
+                });
+            }
+            
+            // Animar gráfico circular de forma segura
+            if (pieChart) {
+                pieChart.style.opacity = '0.3';
+                pieChart.style.transform = 'scale(0.8)';
+                
+                setTimeout(() => {
+                    pieChart.style.transition = 'all 0.4s ease';
+                    pieChart.style.opacity = '1';
+                    pieChart.style.transform = 'scale(1)';
+                }, 400);
+            }
+            
+            // Forzar scroll al final de las animaciones
+            setTimeout(forceScrollTop, 800);
+            
+        }, 1500); // Retrasar más las animaciones
+
+        // === OBSERVADOR DE SCROLL PARA PREVENIR MOVIMIENTO ===
+        let scrollBlocked = true;
+        setTimeout(() => {
+            scrollBlocked = false;
+        }, 2000); // Bloquear scroll por 3 segundos al cargar
+
+        window.addEventListener('scroll', function() {
+            if (scrollBlocked) {
+                forceScrollTop();
+            }
+        });
+
+        // === INTERCEPTAR FOCUS QUE PUEDA CAUSAR SCROLL ===
+        document.addEventListener('focusin', function(e) {
+            if (scrollBlocked) {
+                setTimeout(forceScrollTop, 10);
             }
         });
     </script>

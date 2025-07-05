@@ -150,9 +150,49 @@ def dashboard_view(request):
     
     # === ACTIVIDAD RECIENTE ===
     # Últimos 6 gastos del usuario con detalles
-    actividad_reciente = Gasto.objects.filter(
+    gastos_recientes = Gasto.objects.filter(
         id_usuario=usuario
     ).select_related('tipo_gasto').order_by('-fecha', '-fecha_registro')[:6]
+    
+    # Calcular tiempo relativo para cada gasto
+    actividad_reciente = []
+    for gasto in gastos_recientes:
+        # Calcular tiempo relativo
+        if gasto.fecha == hoy:
+            if gasto.fecha_registro:
+                # Si es de hoy y tiene timestamp, calcular diferencia en tiempo real
+                diferencia = timezone.now() - gasto.fecha_registro
+                if diferencia.seconds < 3600:  # Menos de 1 hora
+                    minutos = diferencia.seconds // 60
+                    if minutos == 0:
+                        tiempo_relativo = "Hace unos segundos"
+                    elif minutos == 1:
+                        tiempo_relativo = "Hace 1 minuto"
+                    else:
+                        tiempo_relativo = f"Hace {minutos} minutos"
+                elif diferencia.seconds < 86400:  # Menos de 24 horas
+                    horas = diferencia.seconds // 3600
+                    if horas == 1:
+                        tiempo_relativo = "Hace 1 hora"
+                    else:
+                        tiempo_relativo = f"Hace {horas} horas"
+                else:
+                    tiempo_relativo = "Hoy"
+            else:
+                tiempo_relativo = "Hoy"
+        else:
+            # Si no es de hoy, calcular diferencia en días
+            diferencia = hoy - gasto.fecha
+            if diferencia.days == 1:
+                tiempo_relativo = "Ayer"
+            elif diferencia.days < 7:
+                tiempo_relativo = f"Hace {diferencia.days} días"
+            else:
+                tiempo_relativo = gasto.fecha.strftime("%d/%m/%Y")
+        
+        # Agregar gasto con tiempo calculado
+        gasto.tiempo_relativo = tiempo_relativo
+        actividad_reciente.append(gasto)
     
     # === RECOMENDACIONES ACTIVAS ===
     recomendaciones_activas = RecomendacionGenerada.objects.filter(

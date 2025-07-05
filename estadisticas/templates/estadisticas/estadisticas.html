@@ -667,12 +667,56 @@
             <!-- Grid de gráficos -->
             <div class="charts-grid">
                 <!-- Gráfico de gastos mensuales -->
-                <div class="chart-card">
-                    <div class="chart-title">📈 Gastos Semanales</div>
-                    <div class="chart-container">
-                        <canvas id="chartGastosMensuales"></canvas>
-                    </div>
-                </div>
+<!-- Gráfico de gastos mensuales MEJORADO -->
+<div class="chart-card">
+    <div class="chart-title">📈 Evolución de Gastos</div>
+    <div class="chart-container">
+        <canvas id="chartGastosMensuales"></canvas>
+    </div>
+    
+    <!-- NUEVO: Estadísticas debajo del gráfico -->
+    <div class="chart-stats" id="chartStats" style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    ">
+        <div style="text-align: center;">
+            <div style="font-size: 18px; font-weight: 700; color: #667eea; margin-bottom: 5px;" id="totalPeriodo">S/. 0</div>
+            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 0.5px;">Total Período</div>
+        </div>
+        
+        <div style="text-align: center;">
+            <div style="font-size: 18px; font-weight: 700; color: #4ecdc4; margin-bottom: 5px;" id="diasConGastos">0/0</div>
+            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 0.5px;">Días Activos</div>
+        </div>
+        
+        <div style="text-align: center;">
+            <div style="font-size: 18px; font-weight: 700; color: #f093fb; margin-bottom: 5px;" id="promedioDiario">S/. 0</div>
+            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 0.5px;">Promedio/Día</div>
+        </div>
+        
+        <div style="text-align: center;">
+            <div style="font-size: 18px; font-weight: 700; color: #ff6b6b; margin-bottom: 5px;" id="gastoMaximo">S/. 0</div>
+            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 0.5px;">Gasto Máximo</div>
+        </div>
+    </div>
+    
+    <!-- NUEVO: Información del período -->
+    <div style="
+        text-align: center;
+        margin-top: 15px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+    " id="periodoInfo">
+        Período analizado: <span id="fechaInicio"></span> - <span id="fechaFin"></span>
+    </div>
+</div>
                 
                 <!-- Gráfico por categorías con leyenda personalizada -->
                 <div class="chart-card">
@@ -931,64 +975,114 @@
             Chart.defaults.color = 'rgba(255, 255, 255, 0.8)';
             Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
             
-            // 📈 CREAR GRÁFICO 1: GASTOS SEMANALES (MEJORADO)
-            try {
-                const ctx1 = canvas1.getContext('2d');
-                new Chart(ctx1, {
-                    type: 'line',
-                    data: datosGraficos.gastos_mensual,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: 'rgba(255, 255, 255, 0.8)'
-                                }
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                titleColor: '#fff',
-                                bodyColor: '#fff',
-                                borderColor: 'rgba(255, 255, 255, 0.2)',
-                                borderWidth: 1
-                            }
-                        },
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.8)',
-                                    callback: function(value) {
-                                        return 'S/. ' + value;
-                                    }
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.8)'
-                                }
-                            }
+// 📈 CREAR GRÁFICO 1: GASTOS MENSUALES MEJORADO CON ESTADÍSTICAS
+try {
+    const ctx1 = canvas1.getContext('2d');
+    const gastosMensualesData = datosGraficos.gastos_mensual;
+    
+    // Crear el gráfico
+    new Chart(ctx1, {
+        type: 'line',
+        data: gastosMensualesData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.8)'
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: S/. ${context.parsed.y}`;
                         }
                     }
-                });
-                console.log('✅ Gráfico gastos semanales creado');
-            } catch (error) {
-                console.error('❌ Error gráfico semanales:', error);
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        callback: function(value) {
+                            return 'S/. ' + value;
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.8)'
+                    }
+                }
             }
+        }
+    });
+    
+    // NUEVO: Actualizar estadísticas debajo del gráfico
+    if (gastosMensualesData.estadisticas) {
+        const stats = gastosMensualesData.estadisticas;
+        
+        // Actualizar valores en el DOM
+        const totalPeriodo = document.getElementById('totalPeriodo');
+        const diasConGastos = document.getElementById('diasConGastos');
+        const promedioDiario = document.getElementById('promedioDiario');
+        const gastoMaximo = document.getElementById('gastoMaximo');
+        const fechaInicio = document.getElementById('fechaInicio');
+        const fechaFin = document.getElementById('fechaFin');
+        
+        if (totalPeriodo) totalPeriodo.textContent = `S/. ${stats.total_periodo}`;
+        if (diasConGastos) diasConGastos.textContent = `${stats.dias_con_gastos}/${stats.total_dias}`;
+        if (promedioDiario) promedioDiario.textContent = `S/. ${stats.promedio_diario}`;
+        if (gastoMaximo) gastoMaximo.textContent = `S/. ${stats.gasto_maximo}`;
+        if (fechaInicio) fechaInicio.textContent = stats.fecha_inicio;
+        if (fechaFin) fechaFin.textContent = stats.fecha_fin;
+        
+        console.log('✅ Estadísticas del gráfico actualizadas:', stats);
+    } else {
+        // Si no hay estadísticas, calcular desde los datos del gráfico
+        const data = gastosMensualesData.datasets[0].data;
+        const total = data.reduce((a, b) => a + b, 0);
+        const diasConGastos = data.filter(d => d > 0).length;
+        const promedio = total / data.length;
+        const maximo = Math.max(...data);
+        
+        const totalPeriodo = document.getElementById('totalPeriodo');
+        const diasConGastosEl = document.getElementById('diasConGastos');
+        const promedioDiario = document.getElementById('promedioDiario');
+        const gastoMaximoEl = document.getElementById('gastoMaximo');
+        
+        if (totalPeriodo) totalPeriodo.textContent = `S/. ${total.toFixed(2)}`;
+        if (diasConGastosEl) diasConGastosEl.textContent = `${diasConGastos}/${data.length}`;
+        if (promedioDiario) promedioDiario.textContent = `S/. ${promedio.toFixed(2)}`;
+        if (gastoMaximoEl) gastoMaximoEl.textContent = `S/. ${maximo.toFixed(2)}`;
+        
+        console.log('✅ Estadísticas calculadas desde datos del gráfico');
+    }
+    
+    console.log('✅ Gráfico gastos mensuales mejorado creado');
+} catch (error) {
+    console.error('❌ Error gráfico mejorado:', error);
+}
             
             // 🥧 CREAR GRÁFICO 2: GASTOS POR CATEGORÍAS CON LEYENDA PERSONALIZADA
             try {
