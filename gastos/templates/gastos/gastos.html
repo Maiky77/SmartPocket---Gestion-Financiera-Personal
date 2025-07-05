@@ -372,13 +372,54 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        /* Tabla */
+        /* MEJORA PRINCIPAL: Tabla con scroll optimizado */
         .table-container {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             overflow: hidden;
             backdrop-filter: blur(10px);
+            /* ALTURA FIJA para evitar que la página se alargue */
+            max-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header de la tabla fijo */
+        .table-header {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0; /* No se encoge */
+        }
+
+        /* Contenedor con scroll para el cuerpo de la tabla */
+        .table-body-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            /* Scrollbar personalizado con glassmorphism */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.5) rgba(255, 255, 255, 0.1);
+        }
+
+        /* Webkit scrollbar personalizado */
+        .table-body-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-body-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .table-body-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            backdrop-filter: blur(10px);
+        }
+
+        .table-body-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
         }
 
         .gastos-table {
@@ -388,14 +429,17 @@
         }
 
         .gastos-table th {
-            background: rgba(255, 255, 255, 0.05);
             padding: 16px 12px;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             font-weight: 600;
             color: rgba(255, 255, 255, 0.9);
             font-size: 12px;
             letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            z-index: 10;
         }
 
         .gastos-table td {
@@ -404,8 +448,29 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        .gastos-table tr:hover {
+        .gastos-table tbody tr:hover {
             background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Indicador visual de scroll */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            background: rgba(102, 126, 234, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .table-container:hover .scroll-indicator {
+            opacity: 1;
         }
 
         .category-badge {
@@ -522,6 +587,27 @@
                 font-size: 12px;
                 padding: 10px 16px;
             }
+
+            /* En móviles, altura menor para el scroll */
+            .table-container {
+                max-height: 400px;
+            }
+        }
+
+        /* Animación suave para nuevos gastos */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gastos-table tbody tr {
+            animation: fadeInUp 0.3s ease-out;
         }
     </style>
 </head>
@@ -649,44 +735,58 @@
                     </div>
                 </div>
                 
-                <!-- Tabla -->
+                <!-- Tabla con scroll mejorado -->
                 <div class="table-container">
-                    <table class="gastos-table">
-                        <thead>
-                            <tr>
-                                <th>📅 Fecha</th>
-                                <th>🏷️ Categoría</th>
-                                <th>📝 Detalle</th>
-                                <th>💰 Monto (S/.)</th>
-                                <th>⚙️ Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for gasto in gastos %}
-                            <tr>
-                                <td>{{ gasto.fecha|date:"d/m/Y" }}</td>
-                                <td>
-                                    <span class="category-badge cat-{{ gasto.tipo_gasto.nombre }}">
-                                        {{ gasto.tipo_gasto.get_nombre_display }}
-                                    </span>
-                                </td>
-                                <td>{{ gasto.descripcion }}</td>
-                                <td class="amount-cell">{{ gasto.monto|floatformat:2 }}</td>
-                                <td>
-                                    <a href="{% url 'gastos:editar_gasto' gasto.id_gasto %}" class="action-btn btn-edit">✏️ Editar</a>
-                                    <a href="{% url 'gastos:eliminar_gasto' gasto.id_gasto %}" class="action-btn btn-delete">🗑️ Eliminar</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="empty-message">
-                                    🎯 No hay gastos registrados.<br>
-                                    ¡Registra tu primer gasto usando el formulario!
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <!-- Header fijo -->
+                    <div class="table-header">
+                        <table class="gastos-table">
+                            <thead>
+                                <tr>
+                                    <th>📅 Fecha</th>
+                                    <th>🏷️ Categoría</th>
+                                    <th>📝 Detalle</th>
+                                    <th>💰 Monto (S/.)</th>
+                                    <th>⚙️ Acciones</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    
+                    <!-- Cuerpo con scroll -->
+                    <div class="table-body-container">
+                        <table class="gastos-table">
+                            <tbody>
+                                {% for gasto in gastos %}
+                                <tr>
+                                    <td>{{ gasto.fecha|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="category-badge cat-{{ gasto.tipo_gasto.nombre }}">
+                                            {{ gasto.tipo_gasto.get_nombre_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ gasto.descripcion }}</td>
+                                    <td class="amount-cell">{{ gasto.monto|floatformat:2 }}</td>
+                                    <td>
+                                        <a href="{% url 'gastos:editar_gasto' gasto.id_gasto %}" class="action-btn btn-edit">✏️ Editar</a>
+                                        <a href="{% url 'gastos:eliminar_gasto' gasto.id_gasto %}" class="action-btn btn-delete">🗑️ Eliminar</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="empty-message">
+                                        🎯 No hay gastos registrados.<br>
+                                        ¡Registra tu primer gasto usando el formulario!
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Indicador de scroll -->
+                    <div class="scroll-indicator">
+                        📜 Desliza para ver más gastos
+                    </div>
                 </div>
             </div>
         </div>
@@ -719,6 +819,70 @@
                     }, 200);
                 });
             });
+
+            // Funcionalidad de scroll inteligente
+            const tableBodyContainer = document.querySelector('.table-body-container');
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            
+            if (tableBodyContainer && scrollIndicator) {
+                // Mostrar/ocultar indicador según el contenido
+                function updateScrollIndicator() {
+                    const hasScroll = tableBodyContainer.scrollHeight > tableBodyContainer.clientHeight;
+                    const isAtBottom = tableBodyContainer.scrollTop + tableBodyContainer.clientHeight >= tableBodyContainer.scrollHeight - 5;
+                    
+                    if (!hasScroll || isAtBottom) {
+                        scrollIndicator.style.opacity = '0';
+                    } else {
+                        scrollIndicator.style.opacity = '1';
+                    }
+                }
+                
+                // Eventos de scroll
+                tableBodyContainer.addEventListener('scroll', updateScrollIndicator);
+                window.addEventListener('resize', updateScrollIndicator);
+                
+                // Verificar inicialmente
+                setTimeout(updateScrollIndicator, 100);
+                
+                // Auto-scroll al último gasto agregado (opcional)
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('nuevo') === '1') {
+                    setTimeout(() => {
+                        tableBodyContainer.scrollTop = 0; // Scroll al inicio para ver el último gasto
+                    }, 300);
+                }
+            }
+
+            // Animación suave para nuevos elementos
+            const tableRows = document.querySelectorAll('.gastos-table tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.animationDelay = `${index * 0.05}s`;
+            });
+        });
+
+        // Funcionalidad adicional: Smooth scroll al agregar gasto
+        const gastoForm = document.getElementById('gasto-form');
+        if (gastoForm) {
+            gastoForm.addEventListener('submit', function() {
+                // Guardar posición actual para restaurar después
+                const tableContainer = document.querySelector('.table-body-container');
+                if (tableContainer) {
+                    sessionStorage.setItem('scrollPosition', tableContainer.scrollTop);
+                }
+            });
+        }
+
+        // Restaurar posición de scroll después de recargar
+        window.addEventListener('load', function() {
+            const tableContainer = document.querySelector('.table-body-container');
+            const savedPosition = sessionStorage.getItem('scrollPosition');
+            
+            if (tableContainer && savedPosition) {
+                setTimeout(() => {
+                    tableContainer.scrollTop = parseInt(savedPosition);
+                    sessionStorage.removeItem('scrollPosition');
+                }, 100);
+            }
         });
     </script>
 </body>
