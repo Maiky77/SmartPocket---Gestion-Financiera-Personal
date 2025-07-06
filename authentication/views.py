@@ -1298,8 +1298,6 @@ def register_view_mejorado_ajax(request):
     
     return render(request, 'authentication/register.html', context)
 
-# AGREGAR ESTAS VISTAS AL FINAL DE authentication/views.py
-
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
