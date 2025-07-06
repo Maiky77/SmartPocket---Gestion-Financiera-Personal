@@ -1,4 +1,5 @@
 {% extends 'authentication/base.html' %}
+{% load static %}
 
 {% block title %}SmartPocket - Iniciar Sesión{% endblock %}
 
@@ -6,7 +7,7 @@
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #1c102d 0%, #271742 25%, #321d56 50%, #3f256b 75%, #4b2d80 100%);
+        background: linear-gradient(135deg, #0e0615 0%, #13091d 25%, #190c26 50%, #200f30 75%, #26123b 100%);
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -33,21 +34,6 @@
             radial-gradient(circle at 80% 30%, rgba(109, 40, 217, 0.2) 0%, transparent 50%);
         animation: backgroundPulse 8s ease-in-out infinite alternate;
         z-index: 0;
-    }
-
-    /* Segundo layer de efectos */
-    body::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            linear-gradient(45deg, transparent 30%, rgba(139, 92, 246, 0.1) 50%, transparent 70%),
-            linear-gradient(-45deg, transparent 40%, rgba(168, 85, 247, 0.08) 60%, transparent 80%);
-        animation: backgroundShift 12s ease-in-out infinite alternate;
-        z-index: 1;
     }
 
     @keyframes backgroundPulse {
@@ -193,7 +179,7 @@
 
     .card {
         background: rgba(0, 0, 0, 0.4);
-        /*backdrop-filter: blur(25px);*/
+        backdrop-filter: blur(25px);
         border-radius: 24px;
         border: 1px solid rgba(255, 255, 255, 0.15);
         padding: 40px;
@@ -219,9 +205,158 @@
         }
     }
 
+/* CSS CORREGIDO - EFECTOS CON FORMA DEL LOGO (CUADRADO REDONDEADO) */
+
+.logo-container {
+    text-align: center;
+    position: relative;
+    /*height: 180px;*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-wrapper {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: logoFloat 4s ease-in-out infinite; 
+}
+
+/* Logo PNG principal - FORMA EXACTA DEL PNG */
+.logo-png {
+    width: 140px;
+    height: 140px;
+    border-radius: 0; /* Eliminar border-radius para usar la forma real del PNG */
+    /* REEMPLAZAR box-shadow por filter: drop-shadow */
+    filter: 
+        drop-shadow(0 20px 40px rgba(102, 126, 234, 0.4))
+        drop-shadow(0 10px 25px rgba(139, 92, 246, 0.3))
+        drop-shadow(0 0 60px rgba(168, 85, 247, 0.2));
+    /*animation: logoFloat 4s ease-in-out infinite;*/
+    position: relative;
+    z-index: 10;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: block;
+    object-fit: contain;
+    /* ELIMINAR border porque no puede seguir la forma del PNG */
+    /* border: 1px solid rgba(255, 255, 255, 0.1); */
+}
+
+/* Efectos de fondo - MISMA FORMA QUE EL LOGO */
+.logo-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Anillo principal - FORMA CUADRADA REDONDEADA */
+.glow-ring {
+    position: absolute;
+    top: -5px;
+    left: -10px;
+    width: 150px/*calc(100% + 40px)*/;
+    height: 150px;
+    border-radius: 45px; /* Esquinas redondeadas como el logo */
+    background: 
+        linear-gradient(400deg, 
+            rgba(139, 92, 246, 0.4) 0%,
+            rgba(168, 85, 247, 0.6) 25%,
+            transparent  50%,
+            rgba(147, 51, 234, 0.4) 75%,
+            rgba(126, 34, 206, 0.6) 100%
+        );
+        
+    animation:
+        glowPulse 4s ease-in-out infinite alternate;
+    opacity: 0.6;
+    filter: blur(3px);
+}
+
+
+/* Nueva animación de pulso en lugar de rotación */
+@keyframes glowPulse {
+    0% { 
+        opacity: 0.3;
+        transform: scale(0.98);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.02);
+    }
+    100% { 
+        opacity: 0.4;
+        transform: scale(1);
+    }
+}
+
+
+
+.logo-particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    animation: logoParticleFloat 6s ease-in-out infinite;
+    box-shadow: 0 0 8px currentColor;
+}
+
+
+@keyframes logoParticleFloat {
+    0%, 100% {
+        transform: translateY(0px) scale(0.5);
+        opacity: 0.4;
+    }
+    25% {
+        transform: translateY(-15px) scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateY(-25px) scale(1.2);
+        opacity: 1;
+    }
+    75% {
+        transform: translateY(-15px) scale(1);
+        opacity: 0.8;
+    }
+}
+
+
+/* Animación de flotación del logo */
+@keyframes logoFloat {
+    0%, 100% { 
+        transform: translateY(0px);
+        filter: drop-shadow(0 10px 20px rgba(102, 126, 234, 0.2));
+    }
+    25% {
+        transform: translateY(-8px);
+        filter: drop-shadow(0 15px 30px rgba(139, 92, 246, 0.3));
+    }
+    50% { 
+        transform: translateY(-12px);
+        filter: drop-shadow(0 20px 40px rgba(168, 85, 247, 0.4));
+    }
+    75% {
+        transform: translateY(-8px);
+        filter: drop-shadow(0 15px 30px rgba(139, 92, 246, 0.3));
+    }
+}
+
+
+
+
+
+/*
     .logo-container {
         text-align: center;
-        /*margin-bottom: 35px;*/
+        
     }
 
     .logo {
@@ -265,29 +400,30 @@
         font-size: 40px;
         z-index: 2;
         position: relative;
-    }
+    }*/
 
     .brand {
         font-size: 32px;
         font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #7e93f0 0%, #792dc8 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
         letter-spacing: -0.5px;
+        /*margin-top: 1px;*/
     }
 
     .tagline {
         color: rgba(255, 255, 255, 0.7);
         font-size: 16px;
-        margin-bottom: 8px;
+        margin-bottom: 3px;
         text-align: center;
         font-weight: 400;
     }
 
     .form-title {
         color: rgba(255, 255, 255, 0.9);
-        font-size: 18px;
+        font-size: 15px;
         font-weight: 500;
         text-align: center;
         margin-bottom: 20px;
@@ -304,6 +440,7 @@
         font-size: 14px;
         border: 1px solid;
         animation: messageSlide 0.3s ease-out;
+        color:white;
     }
 
     @keyframes messageSlide {
@@ -380,7 +517,7 @@
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
-        margin: 25px 0;
+        margin: 13px 0;
     }
 
     .btn::before {
@@ -526,9 +663,30 @@
 </div>
 
 <div class="card">
-    <div class="logo-container">
-        <div class="logo"></div>
+<!-- Reemplaza la sección del logo actual por esto: -->
+<div class="logo-container">
+    <div class="logo-wrapper">
+        <!-- Tu logo PNG con efectos -->
+        <img src="{% static 'images/LogoSP.png' %}" class="logo-png" alt="SmartPocket Logo">
+        
+        <!-- Efectos sobre el logo -->
+        <div class="logo-effects">
+            <div class="glow-ring"></div>
+        </div>
+        
+        <!-- Partículas que emergen del logo -->
+        <div class="logo-particles">
+            <div class="logo-particle"></div>
+            <div class="logo-particle"></div>
+            <div class="logo-particle"></div>
+            <div class="logo-particle"></div>
+            <div class="logo-particle"></div>
+            <div class="logo-particle"></div>
+            <div class="logo-particle"></div>
+            <div class="logo-particle"></div>
+        </div>
     </div>
+</div>
     
     <h1 class="brand">SmartPocket</h1>
     <p class="tagline">Tu gestión financiera inteligente</p>
@@ -572,42 +730,54 @@
 </div>
 
 <script>
+// Efecto interactivo mejorado para el logo
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-focus en el campo email
-    const emailField = document.getElementById('email');
-    if (emailField) {
-        emailField.focus();
-    }
-
-    // Efecto de tipo de escritura en el placeholder
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-        const originalPlaceholder = input.placeholder;
-        
-        input.addEventListener('focus', function() {
-            this.placeholder = '';
-        });
-        
-        input.addEventListener('blur', function() {
-            if (!this.value) {
-                this.placeholder = originalPlaceholder;
-            }
-        });
-    });
-
-    // Efecto de envío del formulario
-    const form = document.getElementById('loginForm');
-    const submitBtn = form.querySelector('.btn');
+    const logoWrapper = document.querySelector('.logo-wrapper');
+    const logoPng = document.querySelector('.logo-png');
+    const glowRings = document.querySelectorAll('.glow-ring');
     
-    form.addEventListener('submit', function() {
-        submitBtn.style.transform = 'scale(0.95)';
-        submitBtn.innerHTML = '<span style="opacity: 0.7;">Iniciando sesión...</span>';
+    // Efecto de mouse tracking
+    logoWrapper.addEventListener('mousemove', function(e) {
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
         
-        // Restaurar después de un momento
-        setTimeout(() => {
-            submitBtn.style.transform = '';
-        }, 150);
+        const tiltX = (y / rect.height) * 10;
+        const tiltY = (x / rect.width) * -10;
+        
+        logoPng.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.1)`;
     });
+    
+    logoWrapper.addEventListener('mouseleave', function() {
+        logoPng.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+    });
+    
+// Efecto de pulso al hacer clic - CORREGIDO
+logoWrapper.addEventListener('click', function() {
+    // Pausar la animación del wrapper (que contiene logoFloat)
+    logoWrapper.style.animation = 'none';
+    
+    // Acelerar solo el glow
+    glowRings.forEach(ring => {
+        ring.style.animationDuration = '0.5s';
+    });
+    
+    // Efecto de click inmediato en el logo
+    logoPng.style.transform = 'scale(0.95)';
+    
+    setTimeout(() => {
+        // Restaurar la animación del wrapper
+        logoWrapper.style.animation = 'logoFloat 4s ease-in-out infinite';
+        
+        // Restaurar glow
+        glowRings.forEach(ring => {
+            ring.style.animationDuration = '4s'; // Coincidir con glowPulse
+        });
+        
+        // Restaurar escala del logo
+        logoPng.style.transform = 'scale(1)';
+    }, 500);
+});
 });
 </script>
 

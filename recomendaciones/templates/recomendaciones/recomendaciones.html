@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+{% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recomendaciones IA - SmartPocket</title>
@@ -54,7 +55,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
             padding: 20px 30px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -66,7 +67,7 @@
             font-weight: 700;
             color: #ffffff;
             display: flex;
-            align-items: center;
+            /*align-items: center;*/
             gap: 12px;
             letter-spacing: -0.5px;
         }
@@ -101,7 +102,7 @@
         .nav-tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -460,7 +461,39 @@
                 padding: 10px 16px;
             }
         }
+        /* Efectos de fondo - MISMA FORMA QUE EL LOGO */
+        .icon-effects {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
 
+        /* Anillo principal - FORMA CUADRADA REDONDEADA */
+        .glow-ring {
+            position: absolute;
+            top: 13px;
+            left: 26px;
+            width: 50px/*calc(100% + 40px)*/;
+            height: 50px;
+            border-radius: 45px; /* Esquinas redondeadas como el logo */
+            background: 
+                linear-gradient(400deg, 
+                    rgba(139, 92, 246, 0.4) 0%,
+                    rgba(168, 85, 247, 0.6) 25%,
+                    transparent  50%,
+                    rgba(147, 51, 234, 0.4) 75%,
+                    rgba(126, 34, 206, 0.6) 100%
+                );
+                
+            animation:
+                glowPulse 4s ease-in-out infinite alternate;
+            opacity: 0.6;
+            filter: blur(3px);
+        }
         /* Colores específicos por tipo de recomendación */
         .recommendation-card.type-reducir_gasto .recommendation-title { color: #ff6b6b; }
         .recommendation-card.type-patron_temporal .recommendation-title { color: #4ecdc4; }
@@ -474,7 +507,13 @@
         <!-- Header sofisticado -->
         <div class="header">
             <div class="brand-title">
-                <div class="brand-icon">💼</div>
+                <div class="icon">
+                    <img src="{% static 'images/LogoSP.png' %}" alt="SmartPocket Logo" 
+                        style="width: 40px; height: 40px; border-radius: 6px;">
+                        <div class="icon-effects">
+                            <div class="glow-ring"></div>
+                        </div>
+                </div>
                 SmartPocket
             </div>
             <a href="{% url 'authentication:logout' %}" class="logout-btn">Cerrar Sesión</a>

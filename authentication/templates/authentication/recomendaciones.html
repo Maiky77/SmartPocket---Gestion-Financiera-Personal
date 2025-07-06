@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recomendaciones - SmartPocket</title>
@@ -283,7 +284,14 @@
         <!-- Header sofisticado -->
         <div class="header">
             <div class="brand-title">
-                <div class="brand-icon">💼</div>
+                <div class="icon">
+                    <img src="{% static 'images/LogoSP.png' %}" alt="SmartPocket Logo" 
+                        style="width: 40px; height: 40px; border-radius: 6px;">
+
+                        <div class="icon-effects">
+                            <div class="glow-ring"></div>
+                        </div>
+                </div>
                 SmartPocket
             </div>
             <a href="{% url 'authentication:logout' %}" class="logout-btn">Cerrar Sesión</a>

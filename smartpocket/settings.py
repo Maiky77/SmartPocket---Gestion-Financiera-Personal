@@ -175,3 +175,15 @@ else:
 EMAIL_TIMEOUT = 30
 SESSION_COOKIE_AGE = 1800  # 30 minutos
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# Para archivos de media (subidas de usuarios)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
