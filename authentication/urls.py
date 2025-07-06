@@ -24,4 +24,12 @@ urlpatterns = [
     
     # AJAX para recuperación
     path('reenviar_codigo/', views.reenviar_codigo_recuperacion, name='reenviar_codigo'),
+
+        # ==================== RUTAS AJAX PARA REGISTRO MEJORADO ====================
+    path('validar-campo/', views.validar_campo_ajax, name='validar_campo_ajax'),
+    path('registro-ajax/', views.register_view_mejorado_ajax, name='registro_ajax'),
+    path('register/', views.register_view_mejorado, name='register'),
+
+
+    path('validar-campo/', views.validar_campo_ajax, name='validar_campo_ajax'),
 ]

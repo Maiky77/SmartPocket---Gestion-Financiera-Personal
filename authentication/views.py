@@ -733,7 +733,6 @@ def reenviar_codigo_recuperacion(request):
     try:
         usuario = Usuario.objects.get(email=recovery_email)
         
-        # Crear nuevo token
         ip_address = get_client_ip(request)
         token = TokenRecuperacion.crear_token(usuario, ip_address)
         
@@ -757,40 +756,72 @@ def reenviar_codigo_recuperacion(request):
 
 # ==================== REGISTRO MEJORADO ====================
 
+# NUEVA VISTA PARA REGISTRO MEJORADO
 def register_view_mejorado(request):
-    """Vista mejorada para registro de usuarios"""
+    """Vista mejorada para registro de usuarios con validaciones"""
     
     if request.method == 'POST':
-        form = RegistroUsuarioForm(request.POST)
+        # Procesar datos del formulario
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        acepto_terminos = request.POST.get('acepto_terminos', '')
         
-        if form.is_valid():
+        # Validaciones
+        errores = []
+        
+        # Verificar campos requeridos
+        if not all([first_name, last_name, username, email, password, confirm_password]):
+            errores.append('Todos los campos son obligatorios')
+        
+        # Verificar contraseñas coinciden
+        if password != confirm_password:
+            errores.append('Las contraseñas no coinciden')
+        
+        # Verificar email único
+        if Usuario.objects.filter(email=email).exists():
+            errores.append('Ya existe una cuenta con este email')
+        
+        # Verificar username único
+        if Usuario.objects.filter(username=username).exists():
+            errores.append('Este nombre de usuario ya está en uso')
+        
+        # Verificar términos aceptados
+        if not acepto_terminos:
+            errores.append('Debes aceptar los términos y condiciones')
+        
+        if errores:
+            # Mostrar errores
+            for error in errores:
+                messages.error(request, error)
+            return render(request, 'authentication/register.html')
+        
+        try:
             # Crear usuario
-            usuario = form.save(commit=False)
-            usuario.set_password(form.cleaned_data['password'])
-            usuario.save()
-            
-            # Enviar email de bienvenida (opcional)
-            enviar_email_bienvenida(usuario)
-            
-            messages.success(request, 
-                f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}! '
-                f'Tu cuenta ha sido creada exitosamente.'
+            usuario = Usuario.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                telefono=telefono
             )
             
             # Login automático
             login(request, usuario)
+            
+            messages.success(request, f'¡Bienvenido a SmartPocket, {usuario.getNombre()}!')
             return redirect('authentication:dashboard')
+            
+        except Exception as e:
+            messages.error(request, 'Error al crear la cuenta. Inténtalo de nuevo.')
+            print(f"Error creating user: {e}")
     
-    else:
-        form = RegistroUsuarioForm()
-    
-    context = {
-        'form': form,
-        'titulo': 'Crear Cuenta',
-        'subtitulo': 'Únete a SmartPocket y toma control de tus finanzas'
-    }
-    
-    return render(request, 'authentication/registro_mejorado.html', context)
+    return render(request, 'authentication/register.html')
 
 # ==================== REGISTRO BÁSICO (MANTENER COMPATIBILIDAD) ====================
 
@@ -931,3 +962,458 @@ SmartPocket - Tu gestión financiera inteligente
     except Exception as e:
         print(f"Error enviando email de bienvenida: {e}")
         return False
+    
+# AGREGAR ESTAS VISTAS AL FINAL DE authentication/views.py
+
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.hashers import make_password
+import re
+
+# ==================== VALIDACIONES AJAX PARA REGISTRO MEJORADO ====================
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def validar_campo_ajax(request):
+    """Vista AJAX para validar campos individuales en tiempo real"""
+    
+    try:
+        data = json.loads(request.body)
+        campo = data.get('campo')
+        valor = data.get('valor', '').strip()
+        
+        # Validaciones específicas por campo
+        if campo == 'username':
+            return validar_username_ajax(valor)
+        elif campo == 'email':
+            return validar_email_ajax(valor)
+        elif campo == 'password':
+            return validar_password_ajax(valor)
+        elif campo == 'confirm_password':
+            return validar_confirm_password_ajax(valor, data.get('password', ''))
+        elif campo in ['first_name', 'last_name']:
+            return validar_nombre_ajax(valor, campo)
+        elif campo == 'telefono':
+            return validar_telefono_ajax(valor)
+        else:
+            return JsonResponse({
+                'valid': False,
+                'message': 'Campo no reconocido'
+            })
+    
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Datos inválidos'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'valid': False,
+            'message': f'Error del servidor: {str(e)}'
+        })
+
+def validar_username_ajax(username):
+    """Validar nombre de usuario"""
+    
+    if not username:
+        return JsonResponse({
+            'valid': False,
+            'message': 'El nombre de usuario es obligatorio'
+        })
+    
+    if len(username) < 3:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Mínimo 3 caracteres'
+        })
+    
+    if not re.match(r'^[a-zA-Z0-9_]+$', username):
+        return JsonResponse({
+            'valid': False,
+            'message': 'Solo letras, números y guiones bajos'
+        })
+    
+    # Verificar si ya existe
+    if Usuario.objects.filter(username=username).exists():
+        return JsonResponse({
+            'valid': False,
+            'message': 'Este nombre de usuario ya está en uso'
+        })
+    
+    return JsonResponse({
+        'valid': True,
+        'message': 'Nombre de usuario disponible'
+    })
+
+def validar_email_ajax(email):
+    """Validar email único"""
+    
+    if not email:
+        return JsonResponse({
+            'valid': False,
+            'message': 'El email es obligatorio'
+        })
+    
+    # Validar formato
+    email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+    if not re.match(email_pattern, email):
+        return JsonResponse({
+            'valid': False,
+            'message': 'Formato de email inválido'
+        })
+    
+    # Verificar si ya existe
+    if Usuario.objects.filter(email=email).exists():
+        return JsonResponse({
+            'valid': False,
+            'message': 'Ya existe una cuenta con este email'
+        })
+    
+    return JsonResponse({
+        'valid': True,
+        'message': 'Email disponible'
+    })
+
+def validar_password_ajax(password):
+    """Validar política de contraseñas"""
+    
+    if not password:
+        return JsonResponse({
+            'valid': False,
+            'message': 'La contraseña es obligatoria'
+        })
+    
+    errors = []
+    
+    if len(password) < 8:
+        errors.append('Mínimo 8 caracteres')
+    
+    if password.isdigit():
+        errors.append('No puede ser solo números')
+    
+    if password.isalpha():
+        errors.append('Debe incluir al menos un número')
+    
+    if not re.search(r'[A-Za-z]', password) or not re.search(r'\d', password):
+        errors.append('Debe contener letras y números')
+    
+    # Contraseñas comunes
+    common_passwords = [
+        'password', 'contraseña', '12345678', 'qwerty', 
+        'abc123', '123456789', 'password123'
+    ]
+    if password.lower() in common_passwords:
+        errors.append('Esta contraseña es muy común')
+    
+    if errors:
+        return JsonResponse({
+            'valid': False,
+            'message': errors[0]  # Mostrar el primer error
+        })
+    
+    # Calcular fortaleza
+    strength_score = 0
+    if len(password) >= 8:
+        strength_score += 1
+    if re.search(r'[A-Z]', password):
+        strength_score += 1
+    if re.search(r'[a-z]', password):
+        strength_score += 1
+    if re.search(r'\d', password):
+        strength_score += 1
+    if re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        strength_score += 1
+    
+    strength_levels = ['muy débil', 'débil', 'regular', 'buena', 'fuerte']
+    strength = strength_levels[min(strength_score - 1, 4)] if strength_score > 0 else 'muy débil'
+    
+    return JsonResponse({
+        'valid': True,
+        'message': f'Contraseña {strength}',
+        'strength': strength_score
+    })
+
+def validar_confirm_password_ajax(confirm_password, password):
+    """Validar confirmación de contraseña"""
+    
+    if not confirm_password:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Confirma tu contraseña'
+        })
+    
+    if confirm_password != password:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Las contraseñas no coinciden'
+        })
+    
+    return JsonResponse({
+        'valid': True,
+        'message': 'Las contraseñas coinciden'
+    })
+
+def validar_nombre_ajax(nombre, campo):
+    """Validar nombres (first_name, last_name)"""
+    
+    if not nombre:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Este campo es obligatorio'
+        })
+    
+    if len(nombre) < 2:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Mínimo 2 caracteres'
+        })
+    
+    if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
+        return JsonResponse({
+            'valid': False,
+            'message': 'Solo letras y espacios'
+        })
+    
+    campo_nombre = 'Nombre' if campo == 'first_name' else 'Apellido'
+    return JsonResponse({
+        'valid': True,
+        'message': f'{campo_nombre} válido'
+    })
+
+def validar_telefono_ajax(telefono):
+    """Validar formato de teléfono (opcional)"""
+    
+    # Si está vacío, es válido porque es opcional
+    if not telefono:
+        return JsonResponse({
+            'valid': True,
+            'message': 'Campo opcional'
+        })
+    
+    # Limpiar el teléfono de espacios y caracteres especiales
+    telefono_limpio = ''.join(filter(str.isdigit, telefono))
+    
+    if len(telefono_limpio) < 9:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Mínimo 9 dígitos'
+        })
+    
+    if len(telefono_limpio) > 15:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Máximo 15 dígitos'
+        })
+    
+    # Validar formato peruano (opcional)
+    if not re.match(r'^(\+?51)?[9]\d{8}$', telefono.replace(' ', '')):
+        return JsonResponse({
+            'valid': True,  # Seguir siendo válido aunque no sea formato peruano
+            'message': 'Formato recomendado: +51 999 999 999'
+        })
+    
+    return JsonResponse({
+        'valid': True,
+        'message': 'Teléfono válido'
+    })
+
+# ==================== VISTA MEJORADA DE REGISTRO CON AJAX ====================
+
+def register_view_mejorado_ajax(request):
+    """Vista mejorada de registro que maneja tanto GET como POST/AJAX"""
+    
+    if request.method == 'POST':
+        # Determinar si es una request AJAX
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        form = RegistroUsuarioForm(request.POST)
+        
+        if form.is_valid():
+            try:
+                # Crear usuario
+                usuario = form.save(commit=False)
+                usuario.set_password(form.cleaned_data['password'])
+                usuario.save()
+                
+                # Enviar email de bienvenida (si está configurado)
+                try:
+                    enviar_email_bienvenida(usuario)
+                except:
+                    pass  # No fallar si el email no se puede enviar
+                
+                # Login automático
+                login(request, usuario)
+                
+                # Respuesta para AJAX
+                if is_ajax:
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'¡Bienvenido a SmartPocket, {usuario.getNombre()}!',
+                        'redirect_url': '/dashboard/'
+                    })
+                
+                # Respuesta para formulario normal
+                messages.success(request, 
+                    f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}! '
+                    f'Tu cuenta ha sido creada exitosamente.'
+                )
+                return redirect('authentication:dashboard')
+                
+            except Exception as e:
+                error_msg = 'Error al crear la cuenta. Inténtalo de nuevo.'
+                
+                if is_ajax:
+                    return JsonResponse({
+                        'success': False,
+                        'message': error_msg,
+                        'errors': {'general': [str(e)]}
+                    })
+                
+                messages.error(request, error_msg)
+        
+        else:
+            # Errores de validación
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Por favor, corrige los errores en el formulario.',
+                    'errors': form.errors
+                })
+            
+            # Para formulario normal, mostrar errores en el template
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    
+    else:
+        form = RegistroUsuarioForm()
+    
+    context = {
+        'form': form,
+        'titulo': 'Crear Cuenta',
+        'subtitulo': 'Únete a SmartPocket y toma control de tus finanzas'
+    }
+    
+    return render(request, 'authentication/register.html', context)
+
+# AGREGAR ESTAS VISTAS AL FINAL DE authentication/views.py
+
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def validar_campo_ajax(request):
+    """Vista AJAX para validar campos en tiempo real"""
+    
+    try:
+        data = json.loads(request.body)
+        campo = data.get('campo')
+        valor = data.get('valor', '').strip()
+        
+        # Validaciones específicas por campo
+        if campo == 'username':
+            return validar_username_ajax(valor)
+        elif campo == 'email':
+            return validar_email_ajax(valor)
+        elif campo in ['first_name', 'last_name']:
+            return validar_nombre_ajax(valor, campo)
+        elif campo == 'telefono':
+            return validar_telefono_ajax(valor)
+        else:
+            return JsonResponse({'valid': True, 'message': ''})
+    
+    except Exception as e:
+        return JsonResponse({'valid': True, 'message': ''})
+
+def validar_username_ajax(username):
+    """Validar nombre de usuario único"""
+    
+    if not username:
+        return JsonResponse({
+            'valid': False,
+            'message': 'El nombre de usuario es obligatorio'
+        })
+    
+    if len(username) < 3:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Mínimo 3 caracteres'
+        })
+    
+    # Verificar si ya existe
+    if Usuario.objects.filter(username=username).exists():
+        return JsonResponse({
+            'valid': False,
+            'message': 'Este nombre de usuario ya está en uso'
+        })
+    
+    return JsonResponse({
+        'valid': True,
+        'message': 'Nombre de usuario disponible'
+    })
+
+def validar_email_ajax(email):
+    """Validar email único"""
+    
+    if not email:
+        return JsonResponse({
+            'valid': False,
+            'message': 'El email es obligatorio'
+        })
+    
+    # Verificar si ya existe
+    if Usuario.objects.filter(email=email).exists():
+        return JsonResponse({
+            'valid': False,
+            'message': 'Ya existe una cuenta con este email'
+        })
+    
+    return JsonResponse({
+        'valid': True,
+        'message': 'Email disponible'
+    })
+
+def validar_nombre_ajax(nombre, campo):
+    """Validar nombres"""
+    
+    if not nombre:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Este campo es obligatorio'
+        })
+    
+    if len(nombre) < 2:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Mínimo 2 caracteres'
+        })
+    
+    return JsonResponse({
+        'valid': True,
+        'message': 'Válido'
+    })
+
+def validar_telefono_ajax(telefono):
+    """Validar teléfono (opcional)"""
+    
+    if not telefono:
+        return JsonResponse({
+            'valid': True,
+            'message': 'Campo opcional'
+        })
+    
+    if len(telefono) < 9:
+        return JsonResponse({
+            'valid': False,
+            'message': 'Mínimo 9 dígitos'
+        })
+    
+    return JsonResponse({
+        'valid': True,
+        'message': 'Teléfono válido'
+    })

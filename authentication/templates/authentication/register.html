@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - SmartPocket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efectos de fondo animados */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(102, 126, 234, 0.2) 0%, transparent 50%);
+            animation: backgroundPulse 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes backgroundPulse {
+            0% { opacity: 0.5; }
+            100% { opacity: 0.8; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+            position: relative;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo::after {
+            content: "💰";
+            font-size: 35px;
+        }
+
+        .brand-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .form-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 25px 0;
+            gap: 8px;
+        }
+
+        .progress-step {
+            width: 40px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-top: 12px;
+            width: 20px;
+            height: 20px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .input-icon.valid {
+            opacity: 1;
+            color: #10b981;
+        }
+
+        .input-icon.invalid {
+            opacity: 1;
+            color: #ef4444;
+        }
+
+        .validation-message {
+            font-size: 12px;
+            margin-top: 5px;
+            padding-left: 5px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .validation-message.show {
+            opacity: 1;
+        }
+
+        .validation-message.success {
+            color: #10b981;
+        }
+
+        .validation-message.error {
+            color: #ef4444;
+        }
+
+        .password-strength {
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .password-strength.show {
+            opacity: 1;
+        }
+
+        .strength-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-fill.weak {
+            width: 25%;
+            background: #ef4444;
+        }
+
+        .strength-fill.fair {
+            width: 50%;
+            background: #f59e0b;
+        }
+
+        .strength-fill.good {
+            width: 75%;
+            background: #3b82f6;
+        }
+
+        .strength-fill.strong {
+            width: 100%;
+            background: #10b981;
+        }
+
+        .requirements-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            font-size: 11px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .requirement.met {
+            color: #10b981;
+        }
+
+        .requirement-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+        }
+
+        .requirement.met .requirement-icon {
+            background: #10b981;
+            color: white;
+        }
+
+        .terms-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .custom-checkbox.checked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .custom-checkbox.checked::after {
+            content: "✓";
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .terms-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .terms-link {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .terms-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn .loading {
+            display: none;
+        }
+
+        .submit-btn.loading .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        .submit-btn.loading .text {
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        .login-link {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .login-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            color: #764ba2;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+                max-width: none;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .requirements-list {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-title {
+                font-size: 28px;
+            }
+        }
+
+        /* Success Animation */
+        .success-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .success-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .success-animation.show .success-content {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            animation: successBounce 0.6s ease-out;
+        }
+
+        @keyframes successBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-title {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .success-message {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <div class="logo"></div>
+            <h1 class="brand-title">SmartPocket</h1>
+            <p class="brand-subtitle">Tu gestión financiera inteligente</p>
+            <p class="form-title">Crea tu cuenta</p>
+        </div>
+
+        <div class="progress-indicator">
+            <div class="progress-step active"></div>
+            <div class="progress-step"></div>
+            <div class="progress-step"></div>
+            <div class="progress-step"></div>
+        </div>
+
+        <form id="registroForm" method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" id="acepto_terminos" name="acepto_terminos" value="">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">Nombre</label>
+                    <input type="text" id="first_name" name="first_name" placeholder="Tu nombre" required autocomplete="given-name">
+                    <div class="input-icon">✓</div>
+                    <div class="validation-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Apellido</label>
+                    <input type="text" id="last_name" name="last_name" placeholder="Tu apellido" required autocomplete="family-name">
+                    <div class="input-icon">✓</div>
+                    <div class="validation-message"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" placeholder="Elige un nombre único" required autocomplete="username">
+                <div class="input-icon">✓</div>
+                <div class="validation-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="tu@ejemplo.com" required autocomplete="email">
+                <div class="input-icon">✓</div>
+                <div class="validation-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" name="telefono" placeholder="+51 999 999 999" autocomplete="tel">
+                <div class="input-icon">✓</div>
+                <div class="validation-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Crea una contraseña segura" required autocomplete="new-password">
+                <div class="input-icon">✓</div>
+                <div class="validation-message"></div>
+                
+                <div class="password-strength" id="passwordStrength">
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                    <div class="requirements-list">
+                        <div class="requirement" data-req="length">
+                            <div class="requirement-icon"></div>
+                            <span>8+ caracteres</span>
+                        </div>
+                        <div class="requirement" data-req="uppercase">
+                            <div class="requirement-icon"></div>
+                            <span>Mayúscula</span>
+                        </div>
+                        <div class="requirement" data-req="lowercase">
+                            <div class="requirement-icon"></div>
+                            <span>Minúscula</span>
+                        </div>
+                        <div class="requirement" data-req="number">
+                            <div class="requirement-icon"></div>
+                            <span>Número</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirmar contraseña</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Repite tu contraseña" required autocomplete="new-password">
+                <div class="input-icon">✓</div>
+                <div class="validation-message"></div>
+            </div>
+
+            <div class="terms-container">
+                <div class="checkbox-container">
+                    <div class="custom-checkbox" id="termsCheckbox"></div>
+                    <div class="terms-text">
+                        Acepto los <a href="#" class="terms-link" id="termsLink">términos y condiciones</a> 
+                        y la <a href="#" class="terms-link" id="privacyLink">política de privacidad</a> de SmartPocket
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                <span class="loading">⟳</span>
+                <span class="text">Crear cuenta</span>
+            </button>
+        </form>
+
+        <div class="divider">
+            <span>¿Ya tienes cuenta?</span>
+        </div>
+
+        <div class="login-link">
+            <a href="#" id="loginLink">Iniciar sesión aquí</a>
+        </div>
+    </div>
+
+    <!-- Success Animation -->
+    <div class="success-animation" id="successAnimation">
+        <div class="success-content">
+            <div class="success-icon">✓</div>
+            <h3 class="success-title">¡Cuenta creada exitosamente!</h3>
+            <p class="success-message">Bienvenido a SmartPocket. Redirigiendo...</p>
+        </div>
+    </div>
+
+    <script>
+        class RegistroUsuario {
+            constructor() {
+                this.form = document.getElementById('registroForm');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.termsCheckbox = document.getElementById('termsCheckbox');
+                this.progressSteps = document.querySelectorAll('.progress-step');
+                
+                this.validationRules = {
+                    first_name: { required: true, minLength: 2, pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/ },
+                    last_name: { required: true, minLength: 2, pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/ },
+                    username: { required: true, minLength: 3, pattern: /^[a-zA-Z0-9_]+$/ },
+                    email: { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+                    telefono: { required: false, pattern: /^(\+?51)?[9]\d{8}$/ },
+                    password: { required: true, minLength: 8 },
+                    confirm_password: { required: true }
+                };
+
+                this.fieldStates = {};
+                this.termsAccepted = false;
+                this.debounceTimers = {};
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.updateProgressIndicator();
+            }
+
+            setupEventListeners() {
+                // Validación en tiempo real para todos los campos
+                Object.keys(this.validationRules).forEach(fieldName => {
+                    const field = document.getElementById(fieldName);
+                    if (field) {
+                        field.addEventListener('input', (e) => this.handleFieldInput(e));
+                        field.addEventListener('blur', (e) => this.validateField(e.target));
+                        field.addEventListener('focus', (e) => this.handleFieldFocus(e));
+                    }
+                });
+
+                // Eventos especiales
+                document.getElementById('password').addEventListener('input', (e) => this.updatePasswordStrength(e.target.value));
+                this.termsCheckbox.addEventListener('click', () => this.toggleTerms());
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+
+                // Enlaces
+                document.getElementById('termsLink').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showTermsModal();
+                });
+                
+                document.getElementById('privacyLink').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showPrivacyModal();
+                });
+
+                document.getElementById('loginLink').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = '/login/';
+                });
+            }
+
+            handleFieldInput(e) {
+                const field = e.target;
+                
+                // Debounce para validaciones que requieren requests al servidor
+                if (['username', 'email'].includes(field.name)) {
+                    clearTimeout(this.debounceTimers[field.name]);
+                    this.debounceTimers[field.name] = setTimeout(() => {
+                        this.validateField(field);
+                    }, 500);
+                } else {
+                    this.validateField(field);
+                }
+
+                this.updateProgressIndicator();
+                this.updateSubmitButton();
+            }
+
+            handleFieldFocus(e) {
+                const field = e.target;
+                
+                // Mostrar ayuda de contraseña al enfocar
+                if (field.name === 'password') {
+                    document.getElementById('passwordStrength').classList.add('show');
+                }
+            }
+
+            async validateField(field) {
+                const rules = this.validationRules[field.name];
+                const value = field.value.trim();
+                let isValid = true;
+                let message = '';
+
+                // Validación requerido
+                if (rules.required && !value) {
+                    isValid = false;
+                    message = 'Este campo es obligatorio';
+                }
+                // Validación longitud mínima
+                else if (rules.minLength && value.length < rules.minLength) {
+                    isValid = false;
+                    message = `Mínimo ${rules.minLength} caracteres`;
+                }
+                // Validación patrón
+                else if (rules.pattern && value && !rules.pattern.test(value)) {
+                    isValid = false;
+                    message = this.getPatternErrorMessage(field.name);
+                }
+                // Validaciones especiales
+                else if (field.name === 'confirm_password') {
+                    const password = document.getElementById('password').value;
+                    if (value && value !== password) {
+                        isValid = false;
+                        message = 'Las contraseñas no coinciden';
+                    }
+                }
+                // Validaciones del servidor (username y email únicos)
+                else if (['username', 'email'].includes(field.name) && value) {
+                    const serverValid = await this.checkUniqueness(field.name, value);
+                    if (!serverValid) {
+                        isValid = false;
+                        message = field.name === 'username' 
+                            ? 'Este nombre de usuario ya está en uso'
+                            : 'Este email ya está registrado';
+                    }
+                }
+
+                this.updateFieldUI(field, isValid, message);
+                this.fieldStates[field.name] = isValid;
+                
+                return isValid;
+            }
+
+            getPatternErrorMessage(fieldName) {
+                const messages = {
+                    first_name: 'Solo letras y espacios',
+                    last_name: 'Solo letras y espacios',
+                    username: 'Solo letras, números y guiones bajos',
+                    email: 'Formato de email inválido',
+                    telefono: 'Formato: +51 999 999 999'
+                };
+                return messages[fieldName] || 'Formato inválido';
+            }
+
+            updateFieldUI(field, isValid, message) {
+                const icon = field.nextElementSibling;
+                const messageEl = icon.nextElementSibling;
+
+                // Actualizar icono
+                icon.className = 'input-icon';
+                if (field.value.trim()) {
+                    icon.classList.add(isValid ? 'valid' : 'invalid');
+                    icon.textContent = isValid ? '✓' : '✗';
+                }
+
+                // Actualizar mensaje
+                messageEl.textContent = message;
+                messageEl.className = 'validation-message';
+                if (message) {
+                    messageEl.classList.add('show', isValid ? 'success' : 'error');
+                }
+
+                // Actualizar borde del campo
+                field.style.borderColor = field.value.trim() 
+                    ? (isValid ? '#10b981' : '#ef4444')
+                    : 'rgba(255, 255, 255, 0.15)';
+            }
+
+            async checkUniqueness(fieldName, value) {
+            try {
+                // Llamada REAL al servidor Django
+                const response = await fetch('/validar-campo/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        campo: fieldName,
+                        valor: value
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                return result.valid;
+                
+            } catch (error) {
+                console.error('Error validating field:', error);
+                return true; // En caso de error, asumir que es válido
+            }
+        }
+
+        // TAMBIÉN ACTUALIZAR validateField para mostrar el mensaje del servidor
+        async validateField(field) {
+            const rules = this.validationRules[field.name];
+            const value = field.value.trim();
+            let isValid = true;
+            let message = '';
+
+            // Validación básica local primero
+            if (rules.required && !value) {
+                isValid = false;
+                message = 'Este campo es obligatorio';
+            }
+            else if (rules.minLength && value.length < rules.minLength) {
+                isValid = false;
+                message = `Mínimo ${rules.minLength} caracteres`;
+            }
+            else if (rules.pattern && value && !rules.pattern.test(value)) {
+                isValid = false;
+                message = this.getPatternErrorMessage(field.name);
+            }
+            else if (field.name === 'confirm_password') {
+                const password = document.getElementById('password').value;
+                if (value && value !== password) {
+                    isValid = false;
+                    message = 'Las contraseñas no coinciden';
+                }
+            }
+            // Validación del servidor para campos críticos
+            else if (['username', 'email'].includes(field.name) && value) {
+                try {
+                    const response = await fetch('/validar-campo/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            campo: field.name,
+                            valor: value
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        isValid = result.valid;
+                        message = result.message || '';
+                    }
+                } catch (error) {
+                    console.error('Error validating field:', error);
+                    isValid = true;
+                    message = '';
+                }
+            }
+
+            this.updateFieldUI(field, isValid, message);
+            this.fieldStates[field.name] = isValid;
+            
+            return isValid;
+        }
+
+            updatePasswordStrength(password) {
+                const strengthEl = document.getElementById('passwordStrength');
+                const fillEl = document.getElementById('strengthFill');
+                const requirements = {
+                    length: password.length >= 8,
+                    uppercase: /[A-Z]/.test(password),
+                    lowercase: /[a-z]/.test(password),
+                    number: /\d/.test(password)
+                };
+
+                // Actualizar indicadores de requisitos
+                Object.keys(requirements).forEach(req => {
+                    const reqEl = document.querySelector(`[data-req="${req}"]`);
+                    reqEl.classList.toggle('met', requirements[req]);
+                    const icon = reqEl.querySelector('.requirement-icon');
+                    icon.textContent = requirements[req] ? '✓' : '';
+                });
+
+                // Calcular fortaleza
+                const metCount = Object.values(requirements).filter(Boolean).length;
+                const strength = ['weak', 'fair', 'good', 'strong'][metCount - 1] || 'weak';
+
+                // Actualizar barra de fortaleza
+                fillEl.className = 'strength-fill';
+                if (password.length > 0) {
+                    fillEl.classList.add(strength);
+                }
+
+                // Mostrar/ocultar contenedor de fortaleza
+                if (password.length > 0) {
+                    strengthEl.classList.add('show');
+                } else {
+                    strengthEl.classList.remove('show');
+                }
+            }
+
+toggleTerms() {
+    this.termsAccepted = !this.termsAccepted;
+    this.termsCheckbox.classList.toggle('checked', this.termsAccepted);
+    
+    // Actualizar campo hidden para Django
+    const hiddenField = document.getElementById('acepto_terminos');
+    if (hiddenField) {
+        hiddenField.value = this.termsAccepted ? 'on' : '';
+    }
+    
+    this.updateSubmitButton();
+}
+
+            updateProgressIndicator() {
+                const requiredFields = ['first_name', 'last_name', 'username', 'email', 'password', 'confirm_password'];
+                const filledFields = requiredFields.filter(name => {
+                    const field = document.getElementById(name);
+                    return field && field.value.trim().length > 0;
+                });
+
+                const progress = Math.ceil((filledFields.length / requiredFields.length) * 4);
+                
+                this.progressSteps.forEach((step, index) => {
+                    step.classList.toggle('active', index < progress);
+                });
+            }
+
+            updateSubmitButton() {
+                const allFieldsValid = Object.keys(this.validationRules).every(fieldName => {
+                    const field = document.getElementById(fieldName);
+                    if (!field) return true;
+                    
+                    const rules = this.validationRules[fieldName];
+                    if (!rules.required && !field.value.trim()) return true;
+                    
+                    return this.fieldStates[fieldName] === true;
+                });
+
+                const canSubmit = allFieldsValid && this.termsAccepted;
+                this.submitBtn.disabled = !canSubmit;
+            }
+
+            async handleSubmit(e) {
+                e.preventDefault();
+                
+                // Validar todos los campos una vez más
+                let allValid = true;
+                for (const fieldName of Object.keys(this.validationRules)) {
+                    const field = document.getElementById(fieldName);
+                    if (field) {
+                        const isValid = await this.validateField(field);
+                        if (!isValid) allValid = false;
+                    }
+                }
+
+                if (!allValid || !this.termsAccepted) {
+                    this.showError('Por favor, corrige los errores antes de continuar');
+                    return;
+                }
+
+                // Mostrar loading
+                this.submitBtn.classList.add('loading');
+                this.submitBtn.disabled = true;
+
+                try {
+                    this.form.submit();
+                } catch (error) {
+                    this.showError('Error al crear la cuenta. Inténtalo de nuevo.');
+                    console.error('Registration error:', error);
+                } finally {
+                    this.submitBtn.classList.remove('loading');
+                    this.updateSubmitButton();
+                }
+            }
+
+            async submitToServer() {
+                // Simular llamada al servidor
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        // Simular éxito/error aleatorio para demo
+                        if (Math.random() > 0.1) {
+                            resolve({ success: true });
+                        } else {
+                            reject(new Error('Server error'));
+                        }
+                    }, 2000);
+                });
+            }
+
+            showSuccess() {
+                const successAnimation = document.getElementById('successAnimation');
+                successAnimation.style.display = 'flex';
+                
+                setTimeout(() => {
+                    successAnimation.classList.add('show');
+                }, 100);
+
+                // Redirigir después de 3 segundos
+                setTimeout(() => {
+                    window.location.href = '/dashboard/';
+                }, 3000);
+            }
+
+            showError(message) {
+                // Crear notificación de error temporal
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: rgba(239, 68, 68, 0.9);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    backdrop-filter: blur(10px);
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                    z-index: 1000;
+                    animation: slideInRight 0.3s ease-out;
+                `;
+                errorDiv.textContent = message;
+                
+                document.body.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    errorDiv.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                    setTimeout(() => errorDiv.remove(), 300);
+                }, 4000);
+            }
+
+            showTermsModal() {
+                this.showModal('Términos y Condiciones', `
+                    <div style="max-height: 400px; overflow-y: auto; line-height: 1.6;">
+                        <h4 style="color: #667eea; margin-bottom: 15px;">1. Aceptación de términos</h4>
+                        <p style="margin-bottom: 15px;">Al usar SmartPocket, aceptas estos términos y condiciones...</p>
+                        
+                        <h4 style="color: #667eea; margin-bottom: 15px;">2. Uso del servicio</h4>
+                        <p style="margin-bottom: 15px;">SmartPocket es una herramienta de gestión financiera personal...</p>
+                        
+                        <h4 style="color: #667eea; margin-bottom: 15px;">3. Privacidad y datos</h4>
+                        <p style="margin-bottom: 15px;">Protegemos tu información financiera con los más altos estándares...</p>
+                        
+                        <h4 style="color: #667eea; margin-bottom: 15px;">4. Responsabilidades</h4>
+                        <p>Eres responsable de mantener la seguridad de tu cuenta...</p>
+                    </div>
+                `);
+            }
+
+            showPrivacyModal() {
+                this.showModal('Política de Privacidad', `
+                    <div style="max-height: 400px; overflow-y: auto; line-height: 1.6;">
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Recolección de datos</h4>
+                        <p style="margin-bottom: 15px;">Recolectamos información necesaria para brindarte el servicio...</p>
+                        
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Uso de la información</h4>
+                        <p style="margin-bottom: 15px;">Utilizamos tus datos para personalizar recomendaciones...</p>
+                        
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Seguridad</h4>
+                        <p style="margin-bottom: 15px;">Implementamos medidas de seguridad bancarias...</p>
+                        
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Contacto</h4>
+                        <p>Para dudas sobre privacidad: privacy@smartpocket.com</p>
+                    </div>
+                `);
+            }
+
+            showModal(title, content) {
+                // Crear modal dinámicamente
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.8);
+                    backdrop-filter: blur(5px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 2000;
+                    animation: fadeIn 0.3s ease-out;
+                `;
+                
+                modal.innerHTML = `
+                    <div style="
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(20px);
+                        border-radius: 20px;
+                        padding: 30px;
+                        max-width: 500px;
+                        width: 90%;
+                        max-height: 80vh;
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        animation: slideUp 0.3s ease-out;
+                    ">
+                        <div style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 20px;
+                            padding-bottom: 15px;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                        ">
+                            <h3 style="color: white; margin: 0; font-size: 20px;">${title}</h3>
+                            <button onclick="this.closest('.modal').remove()" style="
+                                background: none;
+                                border: none;
+                                color: rgba(255, 255, 255, 0.8);
+                                font-size: 24px;
+                                cursor: pointer;
+                                padding: 5px;
+                                border-radius: 50%;
+                                width: 30px;
+                                height: 30px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                            ">×</button>
+                        </div>
+                        <div style="color: rgba(255, 255, 255, 0.9);">
+                            ${content}
+                        </div>
+                    </div>
+                `;
+                
+                modal.classList.add('modal');
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.remove();
+                });
+                
+                document.body.appendChild(modal);
+            }
+        }
+
+        // Agregar estilos de animación adicionales
+        const additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes slideUp {
+                from { 
+                    opacity: 0;
+                    transform: translateY(30px) scale(0.95);
+                }
+                to { 
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+            
+            @keyframes slideInRight {
+                from { 
+                    opacity: 0;
+                    transform: translateX(100%);
+                }
+                to { 
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from { 
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                to { 
+                    opacity: 0;
+                    transform: translateX(100%);
+                }
+            }
+        `;
+        document.head.appendChild(additionalStyles);
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            new RegistroUsuario();
+        });
+
+        // Auto-focus al primer campo
+        window.addEventListener('load', () => {
+            document.getElementById('first_name').focus();
+        });
+    </script>
+</body>
+</html>
