@@ -3,8 +3,6 @@
 {% block title %}SmartPocket - Iniciar Sesión{% endblock %}
 
 {% block content %}
-
-
 <div class="card">
     <div class="logo">💼</div>
     <h1 class="brand">SmartPocket</h1>
@@ -37,8 +35,67 @@
     </form>
     
     <div class="links">
-        <a href="#" onclick="alert('Función en desarrollo')">¿Olvidaste tu contraseña?</a>
-        <a href="{% url 'authentication:register' %}">Crear cuenta</a>
+        <a href="{% url 'authentication:recuperar_contrasena' %}" class="link-recovery">
+            🔐 ¿Olvidaste tu contraseña?
+        </a>
+        <a href="{% url 'authentication:register' %}" class="link-register">
+            👤 Crear cuenta
+        </a>
     </div>
 </div>
+
+<style>
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+    text-align: center;
+}
+
+.links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.links a:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.link-recovery {
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    color: #667eea !important;
+}
+
+.link-recovery:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.5);
+    color: #ffffff !important;
+}
+
+.link-register {
+    background: rgba(118, 75, 162, 0.1);
+    border: 1px solid rgba(118, 75, 162, 0.3);
+    color: #764ba2 !important;
+}
+
+.link-register:hover {
+    background: rgba(118, 75, 162, 0.2);
+    border-color: rgba(118, 75, 162, 0.5);
+    color: #ffffff !important;
+}
+</style>
 {% endblock %}

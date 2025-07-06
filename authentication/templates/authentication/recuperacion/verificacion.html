@@ -1,0 +1,557 @@
+{% extends 'authentication/base.html' %}
+
+{% block title %}SmartPocket - Verificar Código{% endblock %}
+
+{% block content %}
+<div class="card" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); width: 450px;">
+    <div class="logo">🔐</div>
+    <h1 class="brand">SmartPocket</h1>
+    <p class="tagline">Verificación de código</p>
+    
+    <h2 style="margin-bottom: 10px; color: #ffffff;">{{ titulo }}</h2>
+    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 20px; font-size: 0.95rem;">{{ subtitulo }}</p>
+    
+    <!-- Información del email enmascarado -->
+    <div style="background: rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center;">
+        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin-bottom: 5px;">📧 Código enviado a:</div>
+        <div style="color: #ffffff; font-weight: bold; font-size: 1.1rem;" id="emailDisplay">{{ email }}</div>
+    </div>
+    
+    <!-- Timer countdown -->
+    <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2)); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; border: 1px solid rgba(102, 126, 234, 0.3);">
+        <div style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 8px;">⏰ El código expira en:</div>
+        <div style="color: #ffffff; font-weight: bold; font-size: 1.3rem;" id="countdown">{{ token_info.tiempo_restante_str }}</div>
+        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem; margin-top: 8px;">
+            🔢 Intentos restantes: <span id="intentosRestantes">{{ token_info.intentos_restantes }}</span>/5
+        </div>
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}" id="messageAlert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="POST" id="verificacionForm">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.codigo.id_for_label }}" style="color: rgba(255, 255, 255, 0.9); display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                🔢 {{ form.codigo.label }}
+            </label>
+            
+            <!-- Campo de código con diseño especial -->
+            <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 15px;">
+                <input type="text" 
+                       id="digit1" 
+                       class="codigo-digit" 
+                       maxlength="1" 
+                       inputmode="numeric" 
+                       pattern="[0-9]*"
+                       style="width: 50px; height: 60px; text-align: center; font-size: 1.8rem; font-weight: bold; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #ffffff; transition: all 0.3s ease;">
+                <input type="text" 
+                       id="digit2" 
+                       class="codigo-digit" 
+                       maxlength="1" 
+                       inputmode="numeric" 
+                       pattern="[0-9]*"
+                       style="width: 50px; height: 60px; text-align: center; font-size: 1.8rem; font-weight: bold; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #ffffff; transition: all 0.3s ease;">
+                <input type="text" 
+                       id="digit3" 
+                       class="codigo-digit" 
+                       maxlength="1" 
+                       inputmode="numeric" 
+                       pattern="[0-9]*"
+                       style="width: 50px; height: 60px; text-align: center; font-size: 1.8rem; font-weight: bold; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #ffffff; transition: all 0.3s ease;">
+                <input type="text" 
+                       id="digit4" 
+                       class="codigo-digit" 
+                       maxlength="1" 
+                       inputmode="numeric" 
+                       pattern="[0-9]*"
+                       style="width: 50px; height: 60px; text-align: center; font-size: 1.8rem; font-weight: bold; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #ffffff; transition: all 0.3s ease;">
+                <input type="text" 
+                       id="digit5" 
+                       class="codigo-digit" 
+                       maxlength="1" 
+                       inputmode="numeric" 
+                       pattern="[0-9]*"
+                       style="width: 50px; height: 60px; text-align: center; font-size: 1.8rem; font-weight: bold; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #ffffff; transition: all 0.3s ease;">
+                <input type="text" 
+                       id="digit6" 
+                       class="codigo-digit" 
+                       maxlength="1" 
+                       inputmode="numeric" 
+                       pattern="[0-9]*"
+                       style="width: 50px; height: 60px; text-align: center; font-size: 1.8rem; font-weight: bold; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: #ffffff; transition: all 0.3s ease;">
+            </div>
+            
+            <!-- Campo oculto para enviar el código completo -->
+            {{ form.codigo }}
+            
+            {% if form.codigo.errors %}
+                {% for error in form.codigo.errors %}
+                    <div style="color: #ff6b6b; font-size: 0.85rem; margin-top: 8px; text-align: center;">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            
+            <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem; margin-top: 10px; text-align: center;">
+                {{ form.codigo.help_text }}
+            </div>
+        </div>
+        
+        <button type="submit" 
+                class="btn" 
+                id="verificarBtn"
+                style="display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0.5; cursor: not-allowed;" 
+                disabled>
+            ✅ Verificar Código
+        </button>
+    </form>
+    
+    <!-- Botón para reenviar código -->
+    <div style="text-align: center; margin-top: 20px;">
+        <button id="reenviarBtn" 
+                class="btn" 
+                style="background: transparent; border: 2px solid rgba(255, 255, 255, 0.3); color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; padding: 12px 20px; width: auto;"
+                onclick="reenviarCodigo()">
+            📤 Reenviar código
+        </button>
+        <div id="reenviarTimer" style="color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; margin-top: 8px; display: none;">
+            Podrás reenviar en <span id="reenviarCountdown">60</span> segundos
+        </div>
+    </div>
+    
+    <div class="links">
+        <a href="{% url 'authentication:recuperar_contrasena' %}">
+            ⬅️ Solicitar nuevo código
+        </a>
+        <a href="{% url 'authentication:login' %}">
+            🏠 Volver al inicio
+        </a>
+    </div>
+</div>
+
+<style>
+/* Estilos para inputs de código */
+.codigo-digit:focus {
+    border-color: #667eea !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.4) !important;
+    outline: none !important;
+    transform: scale(1.05);
+}
+
+.codigo-digit:not(:placeholder-shown) {
+    border-color: #667eea !important;
+    background: rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Campo original oculto */
+#{{ form.codigo.id_for_label }} {
+    display: none !important;
+}
+
+/* Animaciones */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.codigo-digit.error {
+    border-color: #ff6b6b !important;
+    background: rgba(255, 107, 107, 0.2) !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.codigo-digit.success {
+    border-color: #51cf66 !important;
+    background: rgba(81, 207, 102, 0.2) !important;
+    animation: pulse 0.6s ease-in-out;
+}
+
+/* Estados del botón */
+.btn:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.btn.loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .codigo-digit {
+        width: 40px !important;
+        height: 50px !important;
+        font-size: 1.5rem !important;
+    }
+}
+</style>
+
+<script>
+// Variables globales
+let tiempoRestante = {{ token_info.tiempo_restante }};
+let reenviarTiempo = 0;
+let countdownInterval;
+let reenviarInterval;
+
+// Inicializar cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCodeInputs();
+    startCountdown();
+    
+    // Auto-focus en el primer campo
+    document.getElementById('digit1').focus();
+});
+
+// Función para manejar los inputs de código
+function initializeCodeInputs() {
+    const digits = document.querySelectorAll('.codigo-digit');
+    const codigoField = document.getElementById('{{ form.codigo.id_for_label }}');
+    const verificarBtn = document.getElementById('verificarBtn');
+    
+    digits.forEach((digit, index) => {
+        // Evento de entrada
+        digit.addEventListener('input', function(e) {
+            // Solo permitir números
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            if (this.value.length === 1) {
+                // Mover al siguiente campo
+                if (index < digits.length - 1) {
+                    digits[index + 1].focus();
+                }
+                
+                // Actualizar campo oculto y verificar si está completo
+                updateCodigoField();
+            }
+        });
+        
+        // Evento de tecla
+        digit.addEventListener('keydown', function(e) {
+            // Backspace
+            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                digits[index - 1].focus();
+                digits[index - 1].value = '';
+                updateCodigoField();
+            }
+            
+            // Flechas
+            if (e.key === 'ArrowLeft' && index > 0) {
+                digits[index - 1].focus();
+            }
+            if (e.key === 'ArrowRight' && index < digits.length - 1) {
+                digits[index + 1].focus();
+            }
+            
+            // Enter para enviar si está completo
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (getCodigoCompleto().length === 6) {
+                    document.getElementById('verificacionForm').submit();
+                }
+            }
+        });
+        
+        // Evento de pegado
+        digit.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+            
+            if (pastedData.length === 6) {
+                // Distribuir los dígitos
+                for (let i = 0; i < 6 && i < pastedData.length; i++) {
+                    digits[i].value = pastedData[i];
+                }
+                updateCodigoField();
+                digits[5].focus(); // Focus en el último campo
+            }
+        });
+    });
+}
+
+// Actualizar el campo oculto con el código completo
+function updateCodigoField() {
+    const codigo = getCodigoCompleto();
+    const codigoField = document.getElementById('{{ form.codigo.id_for_label }}');
+    const verificarBtn = document.getElementById('verificarBtn');
+    
+    codigoField.value = codigo;
+    
+    // Habilitar/deshabilitar botón
+    if (codigo.length === 6) {
+        verificarBtn.disabled = false;
+        verificarBtn.style.opacity = '1';
+        verificarBtn.style.cursor = 'pointer';
+        
+        // Auto-submit después de medio segundo
+        setTimeout(() => {
+            if (getCodigoCompleto().length === 6) {
+                submitForm();
+            }
+        }, 500);
+    } else {
+        verificarBtn.disabled = true;
+        verificarBtn.style.opacity = '0.5';
+        verificarBtn.style.cursor = 'not-allowed';
+    }
+}
+
+// Obtener código completo
+function getCodigoCompleto() {
+    const digits = document.querySelectorAll('.codigo-digit');
+    return Array.from(digits).map(digit => digit.value).join('');
+}
+
+// Enviar formulario con validación
+function submitForm() {
+    const verificarBtn = document.getElementById('verificarBtn');
+    const codigo = getCodigoCompleto();
+    
+    if (codigo.length !== 6) {
+        mostrarError('El código debe tener 6 dígitos');
+        return;
+    }
+    
+    // Mostrar loading
+    verificarBtn.classList.add('loading');
+    verificarBtn.disabled = true;
+    
+    // Enviar formulario
+    document.getElementById('verificacionForm').submit();
+}
+
+// Función para el countdown
+function startCountdown() {
+    const countdownElement = document.getElementById('countdown');
+    
+    countdownInterval = setInterval(() => {
+        if (tiempoRestante <= 0) {
+            clearInterval(countdownInterval);
+            countdownElement.innerHTML = '⏰ <span style="color: #ff6b6b;">Código expirado</span>';
+            
+            // Deshabilitar inputs
+            document.querySelectorAll('.codigo-digit').forEach(digit => {
+                digit.disabled = true;
+                digit.style.opacity = '0.5';
+            });
+            
+            // Mostrar mensaje
+            mostrarError('El código ha expirado. Solicita uno nuevo.');
+            
+            return;
+        }
+        
+        const minutos = Math.floor(tiempoRestante / 60);
+        const segundos = tiempoRestante % 60;
+        countdownElement.textContent = `${minutos} min ${segundos} seg`;
+        
+        // Cambiar color cuando quedan menos de 2 minutos
+        if (tiempoRestante < 120) {
+            countdownElement.style.color = '#ff9800';
+        }
+        if (tiempoRestante < 60) {
+            countdownElement.style.color = '#ff6b6b';
+        }
+        
+        tiempoRestante--;
+    }, 1000);
+}
+
+// Función para reenviar código (AJAX)
+async function reenviarCodigo() {
+    const reenviarBtn = document.getElementById('reenviarBtn');
+    
+    if (reenviarTiempo > 0) {
+        return; // Aún en cooldown
+    }
+    
+    // Mostrar loading
+    reenviarBtn.style.opacity = '0.5';
+    reenviarBtn.disabled = true;
+    reenviarBtn.innerHTML = '⏳ Enviando...';
+    
+    try {
+        const response = await fetch('{% url "authentication:reenviar_codigo" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            mostrarExito('✅ Nuevo código enviado correctamente');
+            
+            // Reiniciar timer
+            tiempoRestante = 900; // 15 minutos
+            startReenviarCooldown();
+            
+            // Limpiar campos
+            document.querySelectorAll('.codigo-digit').forEach(digit => {
+                digit.value = '';
+                digit.disabled = false;
+                digit.style.opacity = '1';
+            });
+            document.getElementById('digit1').focus();
+            
+            // Reiniciar countdown principal
+            clearInterval(countdownInterval);
+            startCountdown();
+            
+        } else {
+            mostrarError(`❌ ${data.error || 'Error al reenviar código'}`);
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarError('❌ Error de conexión. Intenta de nuevo.');
+    }
+    
+    // Restaurar botón
+    reenviarBtn.innerHTML = '📤 Reenviar código';
+    reenviarBtn.style.opacity = '1';
+    reenviarBtn.disabled = false;
+}
+
+// Cooldown para reenvío
+function startReenviarCooldown() {
+    reenviarTiempo = 60; // 60 segundos
+    const reenviarBtn = document.getElementById('reenviarBtn');
+    const reenviarTimer = document.getElementById('reenviarTimer');
+    const reenviarCountdown = document.getElementById('reenviarCountdown');
+    
+    reenviarBtn.style.opacity = '0.5';
+    reenviarBtn.disabled = true;
+    reenviarTimer.style.display = 'block';
+    
+    reenviarInterval = setInterval(() => {
+        reenviarCountdown.textContent = reenviarTiempo;
+        
+        if (reenviarTiempo <= 0) {
+            clearInterval(reenviarInterval);
+            reenviarBtn.style.opacity = '1';
+            reenviarBtn.disabled = false;
+            reenviarTimer.style.display = 'none';
+        }
+        
+        reenviarTiempo--;
+    }, 1000);
+}
+
+// Funciones de mensajes
+function mostrarError(mensaje) {
+    mostrarMensaje(mensaje, 'error');
+    
+    // Agregar efecto de error a los campos
+    document.querySelectorAll('.codigo-digit').forEach(digit => {
+        digit.classList.add('error');
+        setTimeout(() => digit.classList.remove('error'), 1000);
+    });
+}
+
+function mostrarExito(mensaje) {
+    mostrarMensaje(mensaje, 'success');
+    
+    // Agregar efecto de éxito a los campos
+    document.querySelectorAll('.codigo-digit').forEach(digit => {
+        digit.classList.add('success');
+        setTimeout(() => digit.classList.remove('success'), 1000);
+    });
+}
+
+function mostrarMensaje(mensaje, tipo) {
+    // Remover mensaje anterior
+    const mensajeAnterior = document.getElementById('messageAlert');
+    if (mensajeAnterior) {
+        mensajeAnterior.remove();
+    }
+    
+    // Crear nuevo mensaje
+    const messageDiv = document.createElement('div');
+    messageDiv.id = 'messageAlert';
+    messageDiv.className = tipo;
+    messageDiv.textContent = mensaje;
+    messageDiv.style.marginBottom = '15px';
+    messageDiv.style.padding = '12px';
+    messageDiv.style.borderRadius = '8px';
+    messageDiv.style.fontSize = '0.9rem';
+    
+    if (tipo === 'error') {
+        messageDiv.style.backgroundColor = 'rgba(255, 107, 107, 0.2)';
+        messageDiv.style.color = '#ff6b6b';
+        messageDiv.style.border = '1px solid rgba(255, 107, 107, 0.4)';
+    } else {
+        messageDiv.style.backgroundColor = 'rgba(81, 207, 102, 0.2)';
+        messageDiv.style.color = '#51cf66';
+        messageDiv.style.border = '1px solid rgba(81, 207, 102, 0.4)';
+    }
+    
+    // Insertar antes del formulario
+    const form = document.getElementById('verificacionForm');
+    form.parentNode.insertBefore(messageDiv, form);
+    
+    // Auto-remove después de 5 segundos
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.remove();
+        }
+    }, 5000);
+}
+
+// Enmascarar email para mostrar
+function enmascararEmail(email) {
+    const [usuario, dominio] = email.split('@');
+    const usuarioEnmascarado = usuario.length > 2 ? 
+        usuario.substring(0, 2) + '*'.repeat(usuario.length - 2) : 
+        usuario;
+    return `${usuarioEnmascarado}@${dominio}`;
+}
+
+// Actualizar email mostrado (opcional, si quieres enmascararlo más)
+document.addEventListener('DOMContentLoaded', function() {
+    const emailDisplay = document.getElementById('emailDisplay');
+    if (emailDisplay) {
+        const email = emailDisplay.textContent;
+        emailDisplay.textContent = enmascararEmail(email);
+    }
+});
+</script>
+{% endblock %}

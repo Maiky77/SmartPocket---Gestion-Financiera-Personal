@@ -12,8 +12,19 @@ from decimal import Decimal
 from PIL import Image
 import os
 from io import BytesIO
-from .models import Usuario
-from .forms import PerfilForm, CambioContrasenaForm
+
+# ==================== NUEVOS IMPORTS PARA RECUPERACIÓN ====================
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
+from django.http import JsonResponse
+import json
+
+from .models import Usuario, TokenRecuperacion
+from .forms import (
+    PerfilForm, CambioContrasenaForm, SolicitudRecuperacionForm, 
+    VerificacionCodigoForm, NuevaContrasenaForm, RegistroUsuarioForm
+)
 
 def login_view(request):
     if request.method == 'POST':
@@ -527,6 +538,262 @@ def eliminar_foto_perfil(request):
     
     return redirect('authentication:perfil')
 
+# ==================== VISTAS DE RECUPERACIÓN DE CONTRASEÑA ====================
+
+def recuperar_contrasena_solicitud(request):
+    """Vista para solicitar recuperación de contraseña"""
+    
+    if request.method == 'POST':
+        form = SolicitudRecuperacionForm(request.POST)
+        
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            
+            try:
+                usuario = Usuario.objects.get(email=email)
+                
+                # Crear token de recuperación
+                ip_address = get_client_ip(request)
+                token = TokenRecuperacion.crear_token(usuario, ip_address)
+                
+                # Enviar email con el código
+                if enviar_email_recuperacion(usuario, token):
+                    # Guardar email en sesión para los siguientes pasos
+                    request.session['recovery_email'] = email
+                    request.session['recovery_token_id'] = token.id
+                    
+                    messages.success(request, 
+                        f'📧 Hemos enviado un código de verificación a {email}. '
+                        f'Revisa tu bandeja de entrada y spam.'
+                    )
+                    return redirect('authentication:verificar_codigo')
+                else:
+                    messages.error(request, 
+                        '❌ Error al enviar el email. Intenta de nuevo más tarde.'
+                    )
+            
+            except Usuario.DoesNotExist:
+                # Por seguridad, no revelar que el email no existe
+                messages.success(request, 
+                    f'📧 Si existe una cuenta con {email}, recibirás un código de verificación.'
+                )
+                return redirect('authentication:login')
+    
+    else:
+        form = SolicitudRecuperacionForm()
+    
+    context = {
+        'form': form,
+        'titulo': 'Recuperar Contraseña',
+        'subtitulo': 'Ingresa tu email para recibir un código de verificación'
+    }
+    
+    return render(request, 'authentication/recuperacion/solicitud.html', context)
+
+def verificar_codigo_recuperacion(request):
+    """Vista para verificar el código de recuperación"""
+    
+    # Verificar que hay una solicitud de recuperación en curso
+    recovery_email = request.session.get('recovery_email')
+    recovery_token_id = request.session.get('recovery_token_id')
+    
+    if not recovery_email or not recovery_token_id:
+        messages.error(request, '❌ Sesión de recuperación no válida. Inicia el proceso nuevamente.')
+        return redirect('authentication:recuperar_contrasena')
+    
+    try:
+        token = TokenRecuperacion.objects.get(id=recovery_token_id)
+        es_valido, mensaje = token.es_valido()
+        
+        if not es_valido:
+            messages.error(request, f'❌ {mensaje}')
+            # Limpiar sesión
+            request.session.pop('recovery_email', None)
+            request.session.pop('recovery_token_id', None)
+            return redirect('authentication:recuperar_contrasena')
+    
+    except TokenRecuperacion.DoesNotExist:
+        messages.error(request, '❌ Token de recuperación no encontrado.')
+        return redirect('authentication:recuperar_contrasena')
+    
+    if request.method == 'POST':
+        form = VerificacionCodigoForm(request.POST)
+        
+        if form.is_valid():
+            codigo_ingresado = form.cleaned_data['codigo']
+            
+            if codigo_ingresado == token.codigo:
+                # Código correcto
+                token.marcar_usado()
+                
+                # Guardar en sesión para el siguiente paso
+                request.session['codigo_verificado'] = True
+                
+                messages.success(request, '✅ Código verificado correctamente.')
+                return redirect('authentication:nueva_contrasena')
+            
+            else:
+                # Código incorrecto
+                token.incrementar_intento()
+                intentos_restantes = max(0, 5 - token.intentos)
+                
+                if intentos_restantes > 0:
+                    messages.error(request, 
+                        f'❌ Código incorrecto. Te quedan {intentos_restantes} intentos.'
+                    )
+                else:
+                    messages.error(request, 
+                        '❌ Demasiados intentos fallidos. Solicita un nuevo código.'
+                    )
+                    # Limpiar sesión
+                    request.session.pop('recovery_email', None)
+                    request.session.pop('recovery_token_id', None)
+                    return redirect('authentication:recuperar_contrasena')
+    
+    else:
+        form = VerificacionCodigoForm()
+    
+    # Información del token para mostrar en el template
+    info_token = token.get_info_seguridad()
+    
+    context = {
+        'form': form,
+        'titulo': 'Verificar Código',
+        'subtitulo': f'Ingresa el código enviado a {recovery_email}',
+        'email': recovery_email,
+        'token_info': info_token,
+    }
+    
+    return render(request, 'authentication/recuperacion/verificacion.html', context)
+
+def nueva_contrasena_recuperacion(request):
+    """Vista para establecer nueva contraseña"""
+    
+    # Verificar que el código fue verificado
+    recovery_email = request.session.get('recovery_email')
+    codigo_verificado = request.session.get('codigo_verificado')
+    
+    if not recovery_email or not codigo_verificado:
+        messages.error(request, '❌ Debes verificar el código primero.')
+        return redirect('authentication:recuperar_contrasena')
+    
+    try:
+        usuario = Usuario.objects.get(email=recovery_email)
+    except Usuario.DoesNotExist:
+        messages.error(request, '❌ Usuario no encontrado.')
+        return redirect('authentication:login')
+    
+    if request.method == 'POST':
+        form = NuevaContrasenaForm(request.POST)
+        
+        if form.is_valid():
+            nueva_contrasena = form.cleaned_data['nueva_contrasena']
+            
+            # Cambiar contraseña
+            usuario.set_password(nueva_contrasena)
+            usuario.save()
+            
+            # Limpiar sesión de recuperación
+            request.session.pop('recovery_email', None)
+            request.session.pop('recovery_token_id', None)
+            request.session.pop('codigo_verificado', None)
+            
+            # Invalidar todos los tokens de recuperación del usuario
+            TokenRecuperacion.objects.filter(usuario=usuario).update(usado=True)
+            
+            messages.success(request, 
+                '🎉 ¡Contraseña cambiada exitosamente! Ya puedes iniciar sesión con tu nueva contraseña.'
+            )
+            return redirect('authentication:login')
+    
+    else:
+        form = NuevaContrasenaForm()
+    
+    context = {
+        'form': form,
+        'titulo': 'Nueva Contraseña',
+        'subtitulo': 'Establece tu nueva contraseña segura',
+        'email': recovery_email,
+        'usuario_nombre': usuario.getNombre()
+    }
+    
+    return render(request, 'authentication/recuperacion/nueva_contrasena.html', context)
+
+def reenviar_codigo_recuperacion(request):
+    """Vista AJAX para reenviar código de recuperación"""
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'})
+    
+    recovery_email = request.session.get('recovery_email')
+    
+    if not recovery_email:
+        return JsonResponse({'success': False, 'error': 'Sesión no válida'})
+    
+    try:
+        usuario = Usuario.objects.get(email=recovery_email)
+        
+        # Crear nuevo token
+        ip_address = get_client_ip(request)
+        token = TokenRecuperacion.crear_token(usuario, ip_address)
+        
+        # Actualizar sesión con nuevo token
+        request.session['recovery_token_id'] = token.id
+        
+        # Enviar email
+        if enviar_email_recuperacion(usuario, token):
+            return JsonResponse({
+                'success': True, 
+                'message': 'Nuevo código enviado correctamente'
+            })
+        else:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Error al enviar el email'
+            })
+    
+    except Usuario.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Usuario no encontrado'})
+
+# ==================== REGISTRO MEJORADO ====================
+
+def register_view_mejorado(request):
+    """Vista mejorada para registro de usuarios"""
+    
+    if request.method == 'POST':
+        form = RegistroUsuarioForm(request.POST)
+        
+        if form.is_valid():
+            # Crear usuario
+            usuario = form.save(commit=False)
+            usuario.set_password(form.cleaned_data['password'])
+            usuario.save()
+            
+            # Enviar email de bienvenida (opcional)
+            enviar_email_bienvenida(usuario)
+            
+            messages.success(request, 
+                f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}! '
+                f'Tu cuenta ha sido creada exitosamente.'
+            )
+            
+            # Login automático
+            login(request, usuario)
+            return redirect('authentication:dashboard')
+    
+    else:
+        form = RegistroUsuarioForm()
+    
+    context = {
+        'form': form,
+        'titulo': 'Crear Cuenta',
+        'subtitulo': 'Únete a SmartPocket y toma control de tus finanzas'
+    }
+    
+    return render(request, 'authentication/registro_mejorado.html', context)
+
+# ==================== REGISTRO BÁSICO (MANTENER COMPATIBILIDAD) ====================
+
 def register_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -564,3 +831,103 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'Sesión cerrada exitosamente.')
     return redirect('authentication:login')
+
+# ==================== FUNCIONES AUXILIARES ====================
+
+def get_client_ip(request):
+    """Obtiene la IP del cliente"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def enviar_email_recuperacion(usuario, token):
+    """
+    Envía email con código de recuperación
+    Returns: bool - True si se envió correctamente
+    """
+    try:
+        asunto = '🔐 SmartPocket - Código de Recuperación de Contraseña'
+        
+        mensaje = f"""
+¡Hola {usuario.getNombre()}!
+
+Recibimos una solicitud para recuperar tu contraseña de SmartPocket.
+
+Tu código de verificación es: {token.codigo}
+
+⏰ Este código expira en 15 minutos.
+🔢 Tienes máximo 5 intentos para usarlo.
+
+Si no solicitaste este código, puedes ignorar este email de forma segura.
+
+---
+SmartPocket - Tu gestión financiera inteligente
+        """
+        
+        # En desarrollo, solo imprimir en consola
+        if settings.DEBUG:
+            print(f"\n{'='*50}")
+            print(f"📧 EMAIL DE RECUPERACIÓN")
+            print(f"{'='*50}")
+            print(f"Para: {usuario.email}")
+            print(f"Asunto: {asunto}")
+            print(f"Código: {token.codigo}")
+            print(f"Expira en: 15 minutos")
+            print(f"{'='*50}\n")
+            return True
+        
+        # En producción, enviar email real
+        else:
+            return send_mail(
+                asunto,
+                mensaje,
+                settings.DEFAULT_FROM_EMAIL,
+                [usuario.email],
+                fail_silently=False,
+            )
+    
+    except Exception as e:
+        print(f"Error enviando email: {e}")
+        return False
+
+def enviar_email_bienvenida(usuario):
+    """Envía email de bienvenida al nuevo usuario"""
+    try:
+        asunto = f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}!'
+        
+        mensaje = f"""
+¡Hola {usuario.getNombre()}!
+
+¡Bienvenido a SmartPocket! 🎉
+
+Tu cuenta ha sido creada exitosamente. Ahora puedes:
+
+💰 Registrar tus gastos diarios
+📊 Ver estadísticas de tus finanzas  
+🎯 Establecer presupuestos inteligentes
+💡 Recibir recomendaciones personalizadas
+
+¡Comienza tu viaje hacia una mejor gestión financiera!
+
+---
+SmartPocket - Tu gestión financiera inteligente
+        """
+        
+        if settings.DEBUG:
+            print(f"\n📧 EMAIL DE BIENVENIDA enviado a {usuario.email}")
+            return True
+        else:
+            return send_mail(
+                asunto,
+                mensaje,
+                settings.DEFAULT_FROM_EMAIL,
+                [usuario.email],
+                fail_silently=True,
+            )
+    
+    except Exception as e:
+        print(f"Error enviando email de bienvenida: {e}")
+        return False
