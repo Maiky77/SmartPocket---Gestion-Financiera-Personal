@@ -1,0 +1,38 @@
+SmartPocket - Cuenta activada correctamente
+
+Estimado {{ usuario.getNombre }},
+
+Su cuenta en SmartPocket ha sido creada exitosamente el {{ usuario.fecha_registro|date:"d/m/Y" }}.
+
+FUNCIONALIDADES DISPONIBLES:
+
+1. Control de gastos
+   - Registre y categorice todos sus gastos diarios
+   
+2. Análisis estadístico
+   - Visualice reportes y gráficos detallados de sus finanzas
+   
+3. Presupuestos inteligentes
+   - Configure límites mensuales y reciba alertas automáticas
+   
+4. Recomendaciones personalizadas
+   - Reciba consejos inteligentes para optimizar sus finanzas
+
+ACCESO A SU CUENTA:
+http://smart-pocket.loc:8001
+
+SUGERENCIAS INICIALES:
+- Configure su primer presupuesto mensual
+- Registre sus gastos diarios para análisis precisos
+- Revise el panel principal para su resumen financiero
+- Active notificaciones para alertas importantes
+
+DETALLES DE LA CUENTA:
+- Usuario: {{ usuario.email }}
+- Fecha de registro: {{ usuario.fecha_registro|date:"d/m/Y H:i" }}
+
+---
+SmartPocket - Sistema de gestión financiera personal
+Confirmación automática de registro
+
+© {{ now.year }} SmartPocket. Todos los derechos reservados.

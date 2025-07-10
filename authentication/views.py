@@ -12,6 +12,12 @@ from decimal import Decimal
 from PIL import Image
 import os
 from io import BytesIO
+# ==================== IMPORTS PARA EMAIL HTML ====================
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.utils import timezone
+from .utils import get_logo_base64, optimize_email_headers, get_professional_subject
 
 # ==================== NUEVOS IMPORTS PARA RECUPERACIÓN ====================
 from django.core.mail import send_mail
@@ -874,94 +880,407 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-def enviar_email_recuperacion(usuario, token):
+def enviar_email_recuperacion_optimizado(usuario, token):
     """
-    Envía email con código de recuperación
+    Envía email de recuperación OPTIMIZADO para evitar SPAM
     Returns: bool - True si se envió correctamente
     """
     try:
-        asunto = '🔐 SmartPocket - Código de Recuperación de Contraseña'
+        print(f"\n🔄 INICIANDO envío de email de recuperación OPTIMIZADO para: {usuario.email}")
         
-        mensaje = f"""
-¡Hola {usuario.getNombre()}!
+        # Obtener logo en base64
+        logo_base64 = get_logo_base64()
+        
+        # Datos del contexto para el template
+        context = {
+            'usuario': usuario,
+            'token': token,
+            'now': timezone.now(),
+            'logo_base64': logo_base64,
+        }
+        
+        print(f"📝 Contexto preparado con logo: {'✅' if logo_base64 else '❌'}")
+        
+        # Renderizar templates
+        html_content = render_to_string('authentication/emails/recuperacion_codigo.html', context)
+        
+        # Crear versión de texto plano profesional
+        text_content = f"""SmartPocket - Verificación de seguridad
 
-Recibimos una solicitud para recuperar tu contraseña de SmartPocket.
+Estimado {usuario.getNombre()},
 
-Tu código de verificación es: {token.codigo}
+Código de verificación: {token.codigo}
 
-⏰ Este código expira en 15 minutos.
-🔢 Tienes máximo 5 intentos para usarlo.
+Este código es válido por 15 minutos y puede utilizarse una sola vez.
+Máximo 5 intentos de verificación permitidos.
 
-Si no solicitaste este código, puedes ignorar este email de forma segura.
+Si no solicitó este restablecimiento, ignore este mensaje.
+
+Detalles de seguridad:
+- IP: {token.ip_solicitud or 'No disponible'}
+- Fecha: {token.creado_en.strftime('%d/%m/%Y %H:%M')}
+- Usuario: {usuario.email}
 
 ---
-SmartPocket - Tu gestión financiera inteligente
-        """
+SmartPocket - Sistema de gestión financiera
+Mensaje automático del sistema de seguridad
+"""
         
-        # En desarrollo, solo imprimir en consola
-        if settings.DEBUG:
-            print(f"\n{'='*50}")
-            print(f"📧 EMAIL DE RECUPERACIÓN")
-            print(f"{'='*50}")
-            print(f"Para: {usuario.email}")
-            print(f"Asunto: {asunto}")
-            print(f"Código: {token.codigo}")
-            print(f"Expira en: 15 minutos")
-            print(f"{'='*50}\n")
-            return True
+        # Configurar email con asunto optimizado
+        asunto_optimizado = get_professional_subject('recuperacion', usuario.getNombre()) + token.codigo
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [usuario.email]
         
-        # En producción, enviar email real
-        else:
-            return send_mail(
-                asunto,
-                mensaje,
-                settings.DEFAULT_FROM_EMAIL,
-                [usuario.email],
-                fail_silently=False,
-            )
-    
+        print(f"📧 Configurando email OPTIMIZADO:")
+        print(f"   Asunto: {asunto_optimizado}")
+        print(f"   De: {from_email}")
+        print(f"   Para: {to_email}")
+        
+        # Crear email con headers optimizados
+        email = EmailMultiAlternatives(
+            subject=asunto_optimizado,
+            body=text_content,
+            from_email=from_email,
+            to=to_email,
+            headers=optimize_email_headers()  # ← HEADERS ANTI-SPAM
+        )
+        
+        # Adjuntar contenido HTML
+        email.attach_alternative(html_content, "text/html")
+        print(f"📎 HTML optimizado adjuntado al email")
+        
+        # Enviar email
+        print(f"🚀 Enviando email optimizado...")
+        resultado = email.send()
+        
+        print(f"📊 Resultado del envío: {resultado}")
+        print(f"✅ Email de recuperación OPTIMIZADO enviado exitosamente" if resultado > 0 else "❌ Error en el envío")
+        
+        return resultado > 0
+        
     except Exception as e:
-        print(f"Error enviando email: {e}")
+        print(f"❌ Error enviando email de recuperación optimizado: {e}")
+        print(f"🔍 Tipo de error: {type(e).__name__}")
+        
         return False
+
+def enviar_email_bienvenida_optimizado(usuario):
+    """
+    Envía email de bienvenida OPTIMIZADO para evitar SPAM
+    Returns: bool - True si se envió correctamente
+    """
+    try:
+        print(f"\n🔄 INICIANDO envío de email de bienvenida OPTIMIZADO para: {usuario.email}")
+        
+        # Obtener logo en base64
+        logo_base64 = get_logo_base64()
+        
+        # Datos del contexto para el template
+        context = {
+            'usuario': usuario,
+            'now': timezone.now(),
+            'logo_base64': logo_base64,
+        }
+        
+        print(f"📝 Contexto preparado con logo: {'✅' if logo_base64 else '❌'}")
+        
+        # Renderizar template HTML optimizado
+        html_content = render_to_string('authentication/emails/bienvenida.html', context)
+        
+        # Crear versión de texto plano profesional
+        text_content = f"""SmartPocket - Cuenta creada correctamente
+
+Estimado {usuario.getNombre()},
+
+Su cuenta en SmartPocket ha sido creada exitosamente el {usuario.fecha_registro.strftime('%d/%m/%Y')}.
+
+Funcionalidades disponibles:
+- Control de gastos por categorías
+- Análisis estadístico avanzado  
+- Presupuestos inteligentes
+- Recomendaciones personalizadas
+
+Acceda a su cuenta en: http://smart-pocket.loc:8001
+
+Detalles de la cuenta:
+- Usuario: {usuario.email}
+- Fecha de registro: {usuario.fecha_registro.strftime('%d/%m/%Y %H:%M')}
+
+---
+SmartPocket - Sistema de gestión financiera personal
+Confirmación automática de registro
+"""
+        
+        # Configurar email con asunto optimizado
+        asunto_optimizado = get_professional_subject('bienvenida', usuario.getNombre())
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [usuario.email]
+        
+        print(f"📧 Configurando email de bienvenida OPTIMIZADO:")
+        print(f"   Asunto: {asunto_optimizado}")
+        print(f"   De: {from_email}")
+        print(f"   Para: {to_email}")
+        
+        # Crear email con headers optimizados
+        email = EmailMultiAlternatives(
+            subject=asunto_optimizado,
+            body=text_content,
+            from_email=from_email,
+            to=to_email,
+            headers=optimize_email_headers()  # ← HEADERS ANTI-SPAM
+        )
+        
+        # Adjuntar contenido HTML
+        email.attach_alternative(html_content, "text/html")
+        print(f"📎 HTML optimizado adjuntado al email")
+        
+        # Enviar email
+        print(f"🚀 Enviando email de bienvenida optimizado...")
+        resultado = email.send()
+        
+        print(f"📊 Resultado del envío: {resultado}")
+        print(f"✅ Email de bienvenida OPTIMIZADO enviado exitosamente" if resultado > 0 else "❌ Error en el envío")
+        
+        return resultado > 0
+        
+    except Exception as e:
+        print(f"❌ Error enviando email de bienvenida optimizado: {e}")
+        print(f"🔍 Tipo de error: {type(e).__name__}")
+        
+        return False
+
+# ==================== MODIFICAR FUNCIÓN DE REGISTRO PARA ENVÍO AUTOMÁTICO ====================
+
+def register_view_con_email_automatico(request):
+    """Vista de registro con envío automático de email de bienvenida"""
+    
+    if request.method == 'POST':
+        # Procesar datos del formulario
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        acepto_terminos = request.POST.get('acepto_terminos', '')
+        
+        # Validaciones básicas
+        errores = []
+        
+        if not all([first_name, last_name, username, email, password, confirm_password]):
+            errores.append('Todos los campos son obligatorios')
+        
+        if password != confirm_password:
+            errores.append('Las contraseñas no coinciden')
+        
+        if Usuario.objects.filter(email=email).exists():
+            errores.append('Ya existe una cuenta con este email')
+        
+        if Usuario.objects.filter(username=username).exists():
+            errores.append('Este nombre de usuario ya está en uso')
+        
+        if not acepto_terminos:
+            errores.append('Debes aceptar los términos y condiciones')
+        
+        if errores:
+            for error in errores:
+                messages.error(request, error)
+            return render(request, 'authentication/register.html')
+        
+        try:
+            # Crear usuario
+            usuario = Usuario.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                telefono=telefono
+            )
+            
+            print(f"✅ Usuario creado exitosamente: {usuario.email}")
+            
+            # 🚀 ENVÍO AUTOMÁTICO DE EMAIL DE BIENVENIDA OPTIMIZADO
+            try:
+                print(f"📧 Intentando enviar email de bienvenida...")
+                email_enviado = enviar_email_bienvenida_optimizado(usuario)
+                
+                if email_enviado:
+                    print(f"✅ Email de bienvenida enviado correctamente")
+                    messages.success(request, 
+                        f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}! '
+                        f'Hemos enviado un email de confirmación a {usuario.email}.'
+                    )
+                else:
+                    print(f"⚠️ Email de bienvenida no se pudo enviar, pero usuario creado")
+                    messages.success(request, 
+                        f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}! '
+                        f'Tu cuenta ha sido creada exitosamente.'
+                    )
+                    
+            except Exception as email_error:
+                print(f"❌ Error en envío de email de bienvenida: {email_error}")
+                # No fallar el registro por problemas de email
+                messages.success(request, 
+                    f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}! '
+                    f'Tu cuenta ha sido creada exitosamente.'
+                )
+            
+            # Login automático
+            login(request, usuario)
+            
+            return redirect('authentication:dashboard')
+            
+        except Exception as e:
+            print(f"❌ Error creando usuario: {e}")
+            messages.error(request, 'Error al crear la cuenta. Inténtalo de nuevo.')
+    
+    return render(request, 'authentication/register.html')
+
+# ==================== ACTUALIZAR FUNCIÓN DE RECUPERACIÓN ====================
+# REEMPLAZAR la función enviar_email_recuperacion existente
+
+def enviar_email_recuperacion(usuario, token):
+    """
+    FUNCIÓN ACTUALIZADA: Usa la versión optimizada
+    """
+    return enviar_email_recuperacion_optimizado(usuario, token)
 
 def enviar_email_bienvenida(usuario):
-    """Envía email de bienvenida al nuevo usuario"""
+    """
+    FUNCIÓN ACTUALIZADA: Usa la versión optimizada  
+    """
+    return enviar_email_bienvenida_optimizado(usuario)
+
+def enviar_email_bienvenida(usuario):
+    """
+    Envía email de bienvenida al nuevo usuario con template HTML
+    Returns: bool - True si se envió correctamente
+    """
     try:
-        asunto = f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}!'
+        print(f"\n🔄 INICIANDO envío de email de bienvenida para: {usuario.email}")
         
-        mensaje = f"""
-¡Hola {usuario.getNombre()}!
+        # Datos del contexto para el template
+        context = {
+            'usuario': usuario,
+            'now': timezone.now(),
+        }
+        
+        print(f"📝 Contexto preparado para {usuario.getNombre()}")
+        
+        # Renderizar templates HTML y texto
+        try:
+            html_content = render_to_string('authentication/emails/bienvenida.html', context)
+            print(f"✅ Template HTML renderizado correctamente")
+        except Exception as template_error:
+            print(f"❌ Error en template HTML: {template_error}")
+            # Usar template simple como fallback
+            html_content = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px;">
+                    <h1>🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}!</h1>
+                    <p>Tu gestión financiera inteligente</p>
+                </div>
+                <div style="padding: 30px;">
+                    <h2>¡Tu cuenta ha sido creada exitosamente!</h2>
+                    <p>Ahora puedes:</p>
+                    <ul>
+                        <li>💰 Registrar tus gastos diarios</li>
+                        <li>📊 Ver estadísticas de tus finanzas</li>
+                        <li>🎯 Establecer presupuestos inteligentes</li>
+                        <li>💡 Recibir recomendaciones personalizadas</li>
+                    </ul>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="http://smart-pocket.loc:8001" style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block;">
+                            Ir a SmartPocket 🚀
+                        </a>
+                    </div>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; text-align: center; border-radius: 10px; margin-top: 20px;">
+                    <p style="color: #6c757d;">SmartPocket - Tu asistente financiero inteligente</p>
+                    <p style="color: #6c757d; font-size: 12px;">© {timezone.now().year} SmartPocket. Todos los derechos reservados.</p>
+                </div>
+            </body>
+            </html>
+            """
+            print(f"🔄 Usando template HTML simple como fallback")
+        
+        # Crear versión de texto plano
+        text_content = f"""
+Confirmación de cuenta - SmartPocket
 
-¡Bienvenido a SmartPocket! 🎉
+Hola {usuario.getNombre()},
 
-Tu cuenta ha sido creada exitosamente. Ahora puedes:
+Tu cuenta en SmartPocket ha sido verificada exitosamente.
 
-💰 Registrar tus gastos diarios
-📊 Ver estadísticas de tus finanzas  
-🎯 Establecer presupuestos inteligentes
-💡 Recibir recomendaciones personalizadas
+Detalles de la cuenta:
+- Email: {usuario.email}
+- Fecha: {usuario.fecha_registro.strftime("%d/%m/%Y %H:%M")}
+- Usuario: {usuario.getNombre()}
 
-¡Comienza tu viaje hacia una mejor gestión financiera!
+Puedes acceder en: http://smart-pocket.loc:8001
+
+Funciones disponibles:
+- Registrar gastos
+- Ver estadísticas  
+- Crear presupuestos
+- Recibir recomendaciones
 
 ---
-SmartPocket - Tu gestión financiera inteligente
+SmartPocket - Sistema de gestión financiera
+Este email confirma la creación de tu cuenta.
         """
         
-        if settings.DEBUG:
-            print(f"\n📧 EMAIL DE BIENVENIDA enviado a {usuario.email}")
-            return True
-        else:
-            return send_mail(
-                asunto,
-                mensaje,
-                settings.DEFAULT_FROM_EMAIL,
-                [usuario.email],
-                fail_silently=True,
-            )
-    
+        # Configurar email
+        asunto = f'🎉 ¡Bienvenido a SmartPocket, {usuario.getNombre()}!'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [usuario.email]
+        
+        print(f"📧 Configurando email:")
+        print(f"   Asunto: {asunto}")
+        print(f"   De: {from_email}")
+        print(f"   Para: {to_email}")
+        
+        # Crear email con contenido HTML y texto usando EmailMultiAlternatives
+        from django.core.mail import EmailMultiAlternatives
+        
+        email = EmailMultiAlternatives(
+            subject=asunto,
+            body=text_content,  # Contenido de texto plano
+            from_email=from_email,
+            to=to_email
+        )
+        
+        # Adjuntar contenido HTML
+        email.attach_alternative(html_content, "text/html")
+        print(f"📎 HTML adjuntado al email")
+        
+        # Enviar email
+        print(f"🚀 Enviando email...")
+        resultado = email.send()
+        
+        print(f"📊 Resultado del envío: {resultado}")
+        print(f"✅ Email de bienvenida enviado exitosamente" if resultado > 0 else "❌ Error en el envío")
+        
+        return resultado > 0
+        
     except Exception as e:
-        print(f"Error enviando email de bienvenida: {e}")
+        print(f"❌ Error enviando email de bienvenida: {e}")
+        print(f"🔍 Tipo de error: {type(e).__name__}")
+        
+        # Fallback a consola
+        print(f"\n{'='*50}")
+        print(f"📧 FALLBACK - EMAIL DE BIENVENIDA EN CONSOLA")
+        print(f"{'='*50}")
+        print(f"Para: {usuario.email}")
+        print(f"Usuario: {usuario.getNombre()}")
+        print(f"Asunto: 🎉 ¡Bienvenido a SmartPocket!")
+        print(f"{'='*50}\n")
+        
         return False
+
     
 # AGREGAR ESTAS VISTAS AL FINAL DE authentication/views.py
 
@@ -1415,3 +1734,233 @@ def validar_telefono_ajax(telefono):
         'valid': True,
         'message': 'Teléfono válido'
     })
+
+
+# ==================== VISTA DE PRUEBA PARA EMAILS ====================
+@login_required
+def test_email_view(request):
+    """Vista temporal para probar el envío de emails"""
+    
+    if request.method == 'POST':
+        tipo_email = request.POST.get('tipo_email')
+        usuario = request.user
+        
+        if tipo_email == 'recuperacion':
+            # Crear token temporal para prueba
+            token = TokenRecuperacion.crear_token(usuario, get_client_ip(request))
+            
+            # Enviar email de recuperación
+            if enviar_email_recuperacion(usuario, token):
+                messages.success(request, f'✅ Email de recuperación enviado correctamente a {usuario.email}')
+            else:
+                messages.error(request, '❌ Error al enviar email de recuperación')
+        
+        elif tipo_email == 'bienvenida':
+            # Enviar email de bienvenida
+            if enviar_email_bienvenida(usuario):
+                messages.success(request, f'✅ Email de bienvenida enviado correctamente a {usuario.email}')
+            else:
+                messages.error(request, '❌ Error al enviar email de bienvenida')
+    
+    # Información de configuración para mostrar
+    config_info = {
+        'email_backend': settings.EMAIL_BACKEND,
+        'email_host': getattr(settings, 'EMAIL_HOST', 'No configurado'),
+        'email_port': getattr(settings, 'EMAIL_PORT', 'No configurado'),
+        'email_use_tls': getattr(settings, 'EMAIL_USE_TLS', False),
+        'email_host_user': getattr(settings, 'EMAIL_HOST_USER', 'No configurado'),
+        'default_from_email': settings.DEFAULT_FROM_EMAIL,
+    }
+    
+    context = {
+        'config_info': config_info,
+        'usuario': request.user,
+    }
+    
+    return render(request, 'authentication/test_email.html', context)
+
+
+# ==================== FUNCIÓN OPTIMIZADA ANTI-SPAM ====================
+# AGREGAR al final de authentication/views.py
+
+def enviar_email_recuperacion_final(usuario, token):
+    """
+    Envía email de recuperación con MÁXIMA optimización anti-SPAM
+    manteniendo tu diseño original
+    """
+    try:
+        print(f"\n🔄 ENVIANDO email de recuperación OPTIMIZADO FINAL para: {usuario.email}")
+        
+        # Importar utilidades
+        from .utils import get_logo_base64
+        
+        # Obtener logo en base64
+        logo_base64 = get_logo_base64()
+        
+        # Datos del contexto para el template
+        context = {
+            'usuario': usuario,
+            'token': token,
+            'now': timezone.now(),
+            'logo_base64': logo_base64,
+        }
+        
+        # Renderizar template optimizado
+        html_content = render_to_string('authentication/emails/recuperacion_codigo.html', context)
+        
+        # Crear versión de texto plano PROFESIONAL
+        text_content = f"""SMARTPOCKET - Verificación de cuenta
+
+Estimado {usuario.getNombre()},
+
+Código de verificación: {token.codigo}
+
+Instrucciones:
+- Válido por 15 minutos únicamente
+- Máximo 5 intentos de verificación
+- No comparta este código con nadie
+- Si no solicitó esto, ignore este mensaje
+
+Detalles de seguridad:
+IP: {token.ip_solicitud or 'No disponible'}
+Fecha: {token.creado_en.strftime('%d/%m/%Y %H:%M')}
+Usuario: {usuario.email}
+
+SmartPocket - Sistema de gestión financiera
+Mensaje automático de seguridad - No responder
+
+© {timezone.now().year} SmartPocket. Todos los derechos reservados.
+"""
+        
+        # ASUNTO SUPER OPTIMIZADO para evitar SPAM
+        asunto_optimizado = f'Verificación de cuenta SmartPocket - Código {token.codigo}'
+        
+        # HEADERS ANTI-SPAM PROFESIONALES
+        headers_anti_spam = {
+            'X-Priority': '1',  # Alta prioridad (transaccional)
+            'X-MSMail-Priority': 'High',
+            'X-Mailer': 'SmartPocket Security System v1.0',
+            'X-MimeOLE': 'SmartPocket Financial Platform',
+            'Importance': 'High',
+            'X-Auto-Response-Suppress': 'OOF, DR, RN, NRN, AutoReply',
+            'List-Unsubscribe': '<mailto:security@smartpocket.com>',
+            'X-Entity-ID': f'sp-security-{token.id}',
+            'X-Sender-ID': 'smartpocket-auth-system',
+            'X-Message-Flag': 'SECURITY_VERIFICATION',
+            'X-Classification': 'TRANSACTIONAL',
+        }
+        
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [usuario.email]
+        
+        print(f"📧 Configurando email FINAL OPTIMIZADO:")
+        print(f"   Asunto: {asunto_optimizado}")
+        print(f"   Headers anti-SPAM: {len(headers_anti_spam)} aplicados")
+        print(f"   Logo: {'✅ Incluido' if logo_base64 else '❌ Fallback emoji'}")
+        
+        # Crear email con MÁXIMA optimización
+        email = EmailMultiAlternatives(
+            subject=asunto_optimizado,
+            body=text_content,
+            from_email=from_email,
+            to=to_email,
+            headers=headers_anti_spam  # ← HEADERS PROFESIONALES ANTI-SPAM
+        )
+        
+        # Adjuntar contenido HTML optimizado
+        email.attach_alternative(html_content, "text/html")
+        
+        # Enviar email
+        print(f"🚀 Enviando email con optimización MÁXIMA...")
+        resultado = email.send()
+        
+        print(f"📊 Resultado: {'✅ EXITOSO' if resultado > 0 else '❌ ERROR'}")
+        
+        # Log adicional para debugging
+        if settings.DEBUG:
+            print(f"\n{'='*60}")
+            print(f"📧 EMAIL OPTIMIZADO ENVIADO")
+            print(f"{'='*60}")
+            print(f"Para: {usuario.email}")
+            print(f"Usuario: {usuario.getNombre()}")
+            print(f"Código: {token.codigo}")
+            print(f"Headers: {len(headers_anti_spam)} aplicados")
+            print(f"Logo: {'✅ Base64' if logo_base64 else '❌ Emoji fallback'}")
+            print(f"Resultado: {'✅ Exitoso' if resultado else '❌ Error'}")
+            print(f"{'='*60}\n")
+        
+        return resultado > 0
+        
+    except Exception as e:
+        print(f"❌ Error enviando email optimizado: {e}")
+        print(f"🔍 Tipo de error: {type(e).__name__}")
+        return False
+
+# ==================== REEMPLAZAR FUNCIÓN EXISTENTE ====================
+# MODIFICAR la función enviar_email_recuperacion existente:
+
+def enviar_email_recuperacion(usuario, token):
+    """
+    FUNCIÓN PRINCIPAL con LOGO incluido
+    """
+    try:
+        print(f"\n🔄 ENVIANDO email con LOGO para: {usuario.email}")
+        
+        # Obtener logo en base64
+        logo_base64 = get_logo_base64()
+        
+        # Datos del contexto para el template
+        context = {
+            'usuario': usuario,
+            'token': token,
+            'now': timezone.now(),
+            'logo_base64': logo_base64,  # ← IMPORTANTE: Incluir logo
+        }
+        
+        # Renderizar template
+        html_content = render_to_string('authentication/emails/recuperacion_codigo.html', context)
+        
+        # Texto plano
+        text_content = f"""SmartPocket - Verificación de seguridad
+
+Estimado {usuario.getNombre()},
+
+Código de verificación: {token.codigo}
+
+Válido por 15 minutos - Máximo 5 intentos
+No compartir con terceros
+
+IP: {token.ip_solicitud or 'No disponible'}
+Fecha: {token.creado_en.strftime('%d/%m/%Y %H:%M')}
+
+SmartPocket - Sistema financiero
+"""
+        
+        # Configurar email
+        asunto = f'Verificación de cuenta SmartPocket - Código {token.codigo}'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [usuario.email]
+        
+        print(f"📧 Email configurado con logo: {'✅' if logo_base64 else '❌'}")
+        
+        # Crear email
+        email = EmailMultiAlternatives(
+            subject=asunto,
+            body=text_content,
+            from_email=from_email,
+            to=to_email,
+            headers=optimize_email_headers()
+        )
+        
+        # Adjuntar HTML
+        email.attach_alternative(html_content, "text/html")
+        
+        # Enviar
+        resultado = email.send()
+        print(f"📊 Email enviado: {'✅' if resultado > 0 else '❌'}")
+        
+        return resultado > 0
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False

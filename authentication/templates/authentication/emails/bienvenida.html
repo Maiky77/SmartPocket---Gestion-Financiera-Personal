@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a SmartPocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            margin: 0 0 5px 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .content {
+            padding: 25px;
+        }
+        .welcome {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .welcome h2 {
+            color: #333;
+            margin: 0 0 10px 0;
+            font-size: 22px;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .feature-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+            color: white;
+        }
+        .cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            color: white;
+        }
+        .cta h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .cta p {
+            margin: 0 0 15px 0;
+            opacity: 0.9;
+        }
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+        .footer .brand {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header SIN LOGO -->
+        <div class="header">
+            <h1>SmartPocket</h1>
+            <p>Tu gestión financiera inteligente</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="welcome">
+                <h2>¡Bienvenido, {{ usuario.getNombre }}!</h2>
+                <p>Tu cuenta ha sido creada exitosamente</p>
+            </div>
+            
+            <!-- Features CON EMOJIS CENTRADOS -->
+            <div class="feature">
+                <div class="feature-icon">💰</div>
+                <div>
+                    <strong>Control de gastos</strong><br>
+                    <small>Registra y categoriza tus gastos diarios</small>
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div>
+                    <strong>Estadísticas</strong><br>
+                    <small>Visualiza reportes de tus finanzas</small>
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div>
+                    <strong>Presupuestos</strong><br>
+                    <small>Define límites y recibe alertas</small>
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">💡</div>
+                <div>
+                    <strong>Recomendaciones</strong><br>
+                    <small>Consejos para optimizar tus finanzas</small>
+                </div>
+            </div>
+            
+            <!-- CTA -->
+            <div class="cta">
+                <h3>¡Comienza ahora!</h3>
+                <p>Accede a tu cuenta y registra tu primer gasto</p>
+                <a href="http://smart-pocket.loc:8001" class="cta-button">
+                    Ir a SmartPocket
+                </a>
+            </div>
+            
+            <p style="font-size: 12px; color: #666;">
+                <strong>Detalles de tu cuenta:</strong><br>
+                Email: {{ usuario.email }}<br>
+                Fecha: {{ usuario.fecha_registro|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="brand">SmartPocket</div>
+            <p>Sistema de gestión financiera personal</p>
+            <p>© {{ now.year }} Todos los derechos reservados</p>
+        </div>
+    </div>
+</body>
+</html>

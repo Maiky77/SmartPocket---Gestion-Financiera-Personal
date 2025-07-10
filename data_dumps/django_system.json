@@ -1,0 +1,186 @@
+[
+{
+  "model": "contenttypes.contenttype",
+  "pk": 1,
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 2,
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 3,
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 4,
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 5,
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 6,
+  "fields": {
+    "app_label": "authentication",
+    "model": "usuario"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 7,
+  "fields": {
+    "app_label": "gastos",
+    "model": "tipogasto"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 8,
+  "fields": {
+    "app_label": "gastos",
+    "model": "gasto"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 9,
+  "fields": {
+    "app_label": "presupuestos",
+    "model": "presupuesto"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 10,
+  "fields": {
+    "app_label": "presupuestos",
+    "model": "alertapresupuesto"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 11,
+  "fields": {
+    "app_label": "recomendaciones",
+    "model": "recomendaciongenerada"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 12,
+  "fields": {
+    "app_label": "recomendaciones",
+    "model": "estadisticacomparativa"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 13,
+  "fields": {
+    "app_label": "recomendaciones",
+    "model": "patronusuario"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 14,
+  "fields": {
+    "app_label": "recomendaciones",
+    "model": "tiporecomendacion"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 15,
+  "fields": {
+    "app_label": "estadisticas",
+    "model": "estadisticausuario"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 16,
+  "fields": {
+    "app_label": "estadisticas",
+    "model": "reporte"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 17,
+  "fields": {
+    "app_label": "authentication",
+    "model": "tokenrecuperacion"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "06t1dss73vumcjo3chzmwdzhd295yr1z",
+  "fields": {
+    "session_data": ".eJxVjEsOAiEQBe_C2hCgCR-X7j0DaWiQUQPJMLMy3l1JZqHbV1XvxQLuWw37yGtYiJ2ZZKffLWJ65DYB3bHdOk-9besS-VT4QQe_dsrPy-H-HVQcddbgtFEGbVFC-4LKZhshi2hJ6OLIFWWM9AaoOB3BQQJDmvCrSQk-sfcH1K83hg:1uXACg:N7q_lyTIFv7IJ5U5_-WLeQ9SLd6kavh7vIzyualtC90",
+    "expire_date": "2025-07-17T03:01:38.414Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "2soobgq3jq33p3pro9o5znxn6cubvrse",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pAOhQ66dN8zEBhmpGpoUtqV8e7apAvd_vfef6kQt7WErfESpqwuCtTpd0uRHlx3kO-x3mZNc12XKeld0QdtepwzP6-H-3dQYivfmrwZkjgwAEgOkLkDYtMTEydv2bPB7MRjZ23sMQoORkCsWExnx6TeH-gZODs:1uYXNV:AwiSTsSlZVpHAdxJQ0lMn7SUYGGMl39L2eQlTlRVNDA",
+    "expire_date": "2025-07-06T22:28:29.034Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "btnm0gtqg5zqdog8bhdjg3pxg2vbwruz",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pAOhQ66dN8zEBhmpGpoUtqV8e7apAvd_vfef6kQt7WErfESpqwuCtTpd0uRHlx3kO-x3mZNc12XKeld0QdtepwzP6-H-3dQYivfmrwZkjgwAEgOkLkDYtMTEydv2bPB7MRjZ23sMQoORkCsWExnx6TeH-gZODs:1uYX7M:sb9l6djSAXmENndd3hg-mwIql9GyXR1dNh6EL5coI2c",
+    "expire_date": "2025-07-06T22:11:48.840Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "gpx00abbt0hivur87ugfzzlpw43fsyv7",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pAOhQ66dN8zEBhmpGpoUtqV8e7apAvd_vfef6kQt7WErfESpqwuCtTpd0uRHlx3kO-x3mZNc12XKeld0QdtepwzP6-H-3dQYivfmrwZkjgwAEgOkLkDYtMTEydv2bPB7MRjZ23sMQoORkCsWExnx6TeH-gZODs:1uYUkl:u711NL-29dyHjh7ZQ7jusDIKpG1cMSkhEQR5Enh-75E",
+    "expire_date": "2025-07-06T19:40:19.099Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ht01hkhlntyj9dlzfja7fx3kqh7hxlb3",
+  "fields": {
+    "session_data": "e30:1uWx6i:qfViLFg-5yXXuJHyQL6iWujc7XhAc6wP0Xx1pZvhn38",
+    "expire_date": "2025-07-16T13:02:36.087Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "idozsz0hzh1fys8i8ev484zl4pl7pilw",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pAOhQ66dN8zEBhmpGpoUtqV8e7apAvd_vfef6kQt7WErfESpqwuCtTpd0uRHlx3kO-x3mZNc12XKeld0QdtepwzP6-H-3dQYivfmrwZkjgwAEgOkLkDYtMTEydv2bPB7MRjZ23sMQoORkCsWExnx6TeH-gZODs:1uYE9W:KonA0rlJo81D6LI33tWsK8qDYXnOtXGlVhQlv56gJxU",
+    "expire_date": "2025-07-06T01:56:46.356Z"
+  }
+}
+]

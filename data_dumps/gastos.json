@@ -1,0 +1,282 @@
+[
+{
+  "model": "gastos.tipogasto",
+  "pk": 1,
+  "fields": {
+    "nombre": "COMIDA",
+    "descripcion": "Gastos en alimentación"
+  }
+},
+{
+  "model": "gastos.tipogasto",
+  "pk": 2,
+  "fields": {
+    "nombre": "TRANSPORTE",
+    "descripcion": "Gastos en transporte"
+  }
+},
+{
+  "model": "gastos.tipogasto",
+  "pk": 3,
+  "fields": {
+    "nombre": "ENTRETENIMIENTO",
+    "descripcion": "Gastos en entretenimiento"
+  }
+},
+{
+  "model": "gastos.tipogasto",
+  "pk": 4,
+  "fields": {
+    "nombre": "EDUCACION",
+    "descripcion": "Gastos en educación"
+  }
+},
+{
+  "model": "gastos.tipogasto",
+  "pk": 5,
+  "fields": {
+    "nombre": "INTERNET",
+    "descripcion": "Gastos en internet y telecomunicaciones"
+  }
+},
+{
+  "model": "gastos.tipogasto",
+  "pk": 6,
+  "fields": {
+    "nombre": "VIAJES",
+    "descripcion": "Gastos en viajes"
+  }
+},
+{
+  "model": "gastos.tipogasto",
+  "pk": 7,
+  "fields": {
+    "nombre": "ROPA",
+    "descripcion": "Gastos en vestimenta"
+  }
+},
+{
+  "model": "gastos.tipogasto",
+  "pk": 8,
+  "fields": {
+    "nombre": "OTROS",
+    "descripcion": "Otros gastos diversos"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 2,
+  "fields": {
+    "tipo_gasto": 1,
+    "monto": "45.50",
+    "descripcion": "almuerzo",
+    "fecha": "2025-07-03",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T14:02:08.115Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 3,
+  "fields": {
+    "tipo_gasto": 1,
+    "monto": "5.00",
+    "descripcion": "Milanesa de pollo",
+    "fecha": "2025-06-30",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T14:09:58.583Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 4,
+  "fields": {
+    "tipo_gasto": 2,
+    "monto": "12.00",
+    "descripcion": "PUNO A AYAVIRI",
+    "fecha": "2025-06-29",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T14:10:23.696Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 5,
+  "fields": {
+    "tipo_gasto": 1,
+    "monto": "50.00",
+    "descripcion": "desayuno cafe",
+    "fecha": "2025-07-07",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T14:20:18.018Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 6,
+  "fields": {
+    "tipo_gasto": 5,
+    "monto": "15.00",
+    "descripcion": "recarga",
+    "fecha": "2025-07-02",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T14:21:25.704Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 7,
+  "fields": {
+    "tipo_gasto": 7,
+    "monto": "80.00",
+    "descripcion": "jogger",
+    "fecha": "2025-07-08",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T14:21:49.456Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 8,
+  "fields": {
+    "tipo_gasto": 8,
+    "monto": "90.00",
+    "descripcion": "nose",
+    "fecha": "2025-07-06",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T14:22:01.255Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 9,
+  "fields": {
+    "tipo_gasto": 3,
+    "monto": "10.00",
+    "descripcion": "cine",
+    "fecha": "2025-07-01",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T14:22:52.066Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 10,
+  "fields": {
+    "tipo_gasto": 2,
+    "monto": "25.00",
+    "descripcion": "taxi",
+    "fecha": "2025-07-04",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T15:23:48.734Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 11,
+  "fields": {
+    "tipo_gasto": 8,
+    "monto": "50.00",
+    "descripcion": "cosas",
+    "fecha": "2025-07-04",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T15:36:42.341Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 12,
+  "fields": {
+    "tipo_gasto": 3,
+    "monto": "100.00",
+    "descripcion": "cine + juegos",
+    "fecha": "2025-07-04",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T15:37:09.319Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 13,
+  "fields": {
+    "tipo_gasto": 1,
+    "monto": "13.00",
+    "descripcion": "merienda",
+    "fecha": "2025-07-10",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T16:18:14.839Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 14,
+  "fields": {
+    "tipo_gasto": 4,
+    "monto": "50.00",
+    "descripcion": "libros",
+    "fecha": "2025-07-04",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T23:52:39.597Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 15,
+  "fields": {
+    "tipo_gasto": 7,
+    "monto": "120.00",
+    "descripcion": "Hoddie",
+    "fecha": "2025-07-04",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-04T23:54:00.952Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 16,
+  "fields": {
+    "tipo_gasto": 4,
+    "monto": "10.00",
+    "descripcion": "Otro libro",
+    "fecha": "2025-07-05",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-05T00:13:44.505Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 18,
+  "fields": {
+    "tipo_gasto": 2,
+    "monto": "100.00",
+    "descripcion": "Viaje Arequipa",
+    "fecha": "2025-07-05",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-05T00:45:14.280Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 19,
+  "fields": {
+    "tipo_gasto": 5,
+    "monto": "5.00",
+    "descripcion": "RECARGA CLARO",
+    "fecha": "2025-07-05",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-05T00:47:52.338Z"
+  }
+},
+{
+  "model": "gastos.gasto",
+  "pk": 20,
+  "fields": {
+    "tipo_gasto": 4,
+    "monto": "10.00",
+    "descripcion": "Cuaderno",
+    "fecha": "2025-07-05",
+    "id_usuario": 1,
+    "fecha_registro": "2025-07-05T21:49:33.861Z"
+  }
+}
+]

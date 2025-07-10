@@ -1,0 +1,246 @@
+[
+{
+  "model": "authentication.usuario",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$3rEOcfmWkygC49Jms9cjcu$GWtHxHCrUyZy7KUwq1rnw3nghtwsfVVcLmYF7y12mck=",
+    "last_login": "2025-07-06T23:08:59.506Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "Maycol",
+    "last_name": "Charca",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-07-01T13:43:37.032Z",
+    "email": "admin@smartpocket.com",
+    "telefono": "956214555",
+    "fecha_registro": "2025-07-01T13:43:37.032Z",
+    "foto_perfil": "perfiles/admin_perfil.jpg",
+    "descripcion_corta": "Estudiante de Ingenieria Estadistica e Informatica del VII Semestre.",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authentication.usuario",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$JZ91mETANsxGyF9SrgClaR$yEWUjevFHHDNxoH4X03JJQUTe/MhiSuthqyVr48r3ps=",
+    "last_login": "2025-07-06T01:25:54.549Z",
+    "is_superuser": false,
+    "username": "proyex",
+    "first_name": "proyex",
+    "last_name": "Prueba",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-06T00:09:23.476Z",
+    "email": "proyex54@gmail.com",
+    "telefono": null,
+    "fecha_registro": "2025-07-06T00:09:23.476Z",
+    "foto_perfil": "",
+    "descripcion_corta": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authentication.usuario",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$APLUOqEQCqj52iAawRvx4b$eXkrUndwzTnSvk9IlQSIyUXbuojKUukf8Cp75Kx+j4w=",
+    "last_login": "2025-07-06T14:11:51.922Z",
+    "is_superuser": false,
+    "username": "probando",
+    "first_name": "prueba",
+    "last_name": "uno",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-06T14:11:27.425Z",
+    "email": "admin2@smartpocket.com",
+    "telefono": "987654215",
+    "fecha_registro": "2025-07-06T14:11:27.425Z",
+    "foto_perfil": "",
+    "descripcion_corta": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authentication.usuario",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$FCsVgPZu4YAJWmwoO2Fy2Z$g9y5jaaYIl3LAAMoSF4aNnyO7uhkXurLBYPJA5TCvaA=",
+    "last_login": "2025-07-06T14:25:02.626Z",
+    "is_superuser": false,
+    "username": "luisito",
+    "first_name": "luis",
+    "last_name": "benito",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-06T14:24:38.690Z",
+    "email": "admin3@smartpocket.com",
+    "telefono": "987654211",
+    "fecha_registro": "2025-07-06T14:24:38.690Z",
+    "foto_perfil": "",
+    "descripcion_corta": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 1,
+  "fields": {
+    "usuario": 3,
+    "codigo": "823402",
+    "email": "proyex54@gmail.com",
+    "creado_en": "2025-07-06T00:11:51.244Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 2,
+  "fields": {
+    "usuario": 3,
+    "codigo": "184284",
+    "email": "proyex54@gmail.com",
+    "creado_en": "2025-07-06T00:12:09.406Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 3,
+  "fields": {
+    "usuario": 3,
+    "codigo": "891556",
+    "email": "proyex54@gmail.com",
+    "creado_en": "2025-07-06T00:13:39.718Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 4,
+  "fields": {
+    "usuario": 3,
+    "codigo": "648333",
+    "email": "proyex54@gmail.com",
+    "creado_en": "2025-07-06T00:29:31.179Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 5,
+  "fields": {
+    "usuario": 3,
+    "codigo": "742328",
+    "email": "proyex54@gmail.com",
+    "creado_en": "2025-07-06T00:43:39.342Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 6,
+  "fields": {
+    "usuario": 3,
+    "codigo": "061183",
+    "email": "proyex54@gmail.com",
+    "creado_en": "2025-07-06T00:49:11.707Z",
+    "usado": false,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 7,
+  "fields": {
+    "usuario": 1,
+    "codigo": "046504",
+    "email": "admin@smartpocket.com",
+    "creado_en": "2025-07-06T01:02:43.635Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 8,
+  "fields": {
+    "usuario": 1,
+    "codigo": "066227",
+    "email": "admin@smartpocket.com",
+    "creado_en": "2025-07-06T01:10:55.739Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 9,
+  "fields": {
+    "usuario": 1,
+    "codigo": "417553",
+    "email": "admin@smartpocket.com",
+    "creado_en": "2025-07-06T01:14:18.141Z",
+    "usado": true,
+    "intentos": 1,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 10,
+  "fields": {
+    "usuario": 1,
+    "codigo": "272011",
+    "email": "admin@smartpocket.com",
+    "creado_en": "2025-07-06T01:16:29.037Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 11,
+  "fields": {
+    "usuario": 1,
+    "codigo": "437277",
+    "email": "admin@smartpocket.com",
+    "creado_en": "2025-07-06T01:18:41.004Z",
+    "usado": true,
+    "intentos": 1,
+    "ip_solicitud": "127.0.0.1"
+  }
+},
+{
+  "model": "authentication.tokenrecuperacion",
+  "pk": 12,
+  "fields": {
+    "usuario": 1,
+    "codigo": "223522",
+    "email": "admin@smartpocket.com",
+    "creado_en": "2025-07-06T16:33:28.129Z",
+    "usado": true,
+    "intentos": 0,
+    "ip_solicitud": "127.0.0.1"
+  }
+}
+]

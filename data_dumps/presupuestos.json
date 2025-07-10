@@ -1,0 +1,15 @@
+[
+{
+  "model": "presupuestos.presupuesto",
+  "pk": 2,
+  "fields": {
+    "categoria": 5,
+    "monto_maximo": "120.00",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-31",
+    "id_usuario": 1,
+    "fecha_creacion": "2025-07-05T00:16:54.703Z",
+    "activo": true
+  }
+}
+]

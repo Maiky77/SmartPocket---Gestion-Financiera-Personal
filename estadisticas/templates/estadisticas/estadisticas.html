@@ -472,7 +472,7 @@
         }
 
         /* Debug info */
-        .debug-info {
+        /*.debug-info {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 193, 7, 0.3);
             border-radius: 12px;
@@ -480,7 +480,7 @@
             margin-bottom: 20px;
             font-size: 12px;
             color: rgba(255, 255, 255, 0.8);
-        }
+        }*/
 
         /* Mensajes */
         .message {
@@ -595,6 +595,12 @@
             z-index: 1;
         }
 
+        .form-select {
+            background-color:rgba(65, 65, 97, 0.52) !important;
+            color: #ffffff !important;
+            
+        }
+
         /* Anillo principal - FORMA CUADRADA REDONDEADA */
         .glow-ring {
             position: absolute;
@@ -701,9 +707,9 @@
             
             <!-- Información de debug -->
             <div class="debug-info">
-                <strong>🔍 Debug Info:</strong> Chart.js cargado: <span id="chartStatus">Verificando...</span> | 
-                Canvas: <span id="canvasStatus">Verificando...</span> | 
-                Datos: <span id="dataStatus">Verificando...</span>
+                <strong></strong><span id="chartStatus"></span>
+                <span id="canvasStatus"></span>
+                <span id="dataStatus"></span>
             </div>
             
             <!-- Grid de gráficos -->
@@ -896,7 +902,6 @@
             
             // 1. Verificar Chart.js
             if (typeof Chart !== 'undefined') {
-                chartStatus.textContent = '✅ OK';
                 chartStatus.style.color = '#4CAF50';
                 console.log('✅ Chart.js disponible, versión:', Chart.version || 'Desconocida');
             } else {
@@ -913,7 +918,6 @@
             const canvas4 = document.getElementById('chartComparativaPresupuesto');
             
             if (canvas1 && canvas2 && canvas3 && canvas4) {
-                canvasStatus.textContent = '✅ OK (4)';
                 canvasStatus.style.color = '#4CAF50';
                 console.log('✅ Todos los canvas encontrados');
             } else {
@@ -938,7 +942,7 @@
                 // Verificar que los datos están bien formateados
                 if (rawData.gastos_mensual && rawData.gastos_categoria) {
                     datosGraficos = rawData;
-                    dataStatus.textContent = '✅ OK (Django)';
+                    
                     dataStatus.style.color = '#4CAF50';
                     console.log('✅ Datos de Django parseados correctamente:', datosGraficos);
                 } else {

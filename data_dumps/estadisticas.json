@@ -1,0 +1,338 @@
+[
+{
+  "model": "estadisticas.estadisticausuario",
+  "pk": 37,
+  "fields": {
+    "usuario": 1,
+    "tipo_grafico": "LINEA",
+    "promedio_gastos": "43.92",
+    "periodo": "MENSUAL",
+    "fecha_generacion": "2025-07-05T23:12:37.068Z",
+    "datos_json": "{\"labels\": [\"29/06\", \"30/06\", \"01/07\", \"02/07\", \"03/07\", \"04/07\", \"05/07\", \"06/07\", \"07/07\", \"08/07\", \"10/07\"], \"datasets\": [{\"label\": \"Gastos Diarios (S/.)\", \"data\": [12.0, 5.0, 10.0, 15.0, 45.5, 345.0, 125.0, 90.0, 50.0, 80.0, 13.0], \"borderColor\": \"rgb(102, 126, 234)\", \"backgroundColor\": \"rgba(102, 126, 234, 0.1)\", \"tension\": 0.4, \"fill\": true, \"pointBackgroundColor\": \"#667eea\", \"pointBorderColor\": \"#fff\", \"pointBorderWidth\": 2, \"pointRadius\": 5, \"pointHoverRadius\": 7}], \"estadisticas\": {\"total_periodo\": 790.5, \"dias_con_gastos\": 11, \"total_dias\": 11, \"promedio_diario\": 71.86, \"gasto_maximo\": 345.0, \"fecha_inicio\": \"29/06/2025\", \"fecha_fin\": \"10/07/2025\"}}"
+  }
+},
+{
+  "model": "estadisticas.estadisticausuario",
+  "pk": 38,
+  "fields": {
+    "usuario": 1,
+    "tipo_grafico": "CIRCULAR",
+    "promedio_gastos": "43.92",
+    "periodo": "MENSUAL",
+    "fecha_generacion": "2025-07-05T23:12:37.080Z",
+    "datos_json": "{\"labels\": [\"Comida\", \"Ropa\", \"Otros\", \"Educaci\\u00f3n\", \"Internet\", \"Transporte\", \"Entretenimiento\"], \"datasets\": [{\"data\": [113.5, 200.0, 140.0, 70.0, 20.0, 137.0, 110.0], \"backgroundColor\": [\"#667eea\", \"#764ba2\", \"#ff6b6b\", \"#4ecdc4\", \"#45b7d1\", \"#f093fb\", \"#feca57\"], \"borderWidth\": 2, \"borderColor\": \"#fff\"}]}"
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 1,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T14:17:51.572Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 2,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-04",
+    "fecha_fin": "2025-07-06",
+    "fecha_generacion": "2025-07-04T14:18:17.033Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 3,
+  "fields": {
+    "usuario": 1,
+    "formato": "EXCEL",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-02",
+    "fecha_fin": "2025-07-08",
+    "fecha_generacion": "2025-07-04T15:25:12.280Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 4,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T15:35:21.630Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 5,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-04",
+    "fecha_fin": "2025-07-07",
+    "fecha_generacion": "2025-07-04T16:10:11.691Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 6,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:15:00.979Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 7,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:15:15.199Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 8,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:19:12.511Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 9,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-29",
+    "fecha_fin": "2025-07-07",
+    "fecha_generacion": "2025-07-04T16:19:53.801Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 10,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:22:44.417Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 11,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:23:02.888Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 12,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:23:12.498Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 13,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-30",
+    "fecha_fin": "2025-07-02",
+    "fecha_generacion": "2025-07-04T16:23:33.887Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 14,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:24:26.039Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 15,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:25:32.823Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 16,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:30:55.677Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 17,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-07-01",
+    "fecha_fin": "2025-07-04",
+    "fecha_generacion": "2025-07-04T16:46:17.023Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 18,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-29",
+    "fecha_fin": "2025-07-10",
+    "fecha_generacion": "2025-07-04T17:46:10.117Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 19,
+  "fields": {
+    "usuario": 1,
+    "formato": "EXCEL",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-29",
+    "fecha_fin": "2025-07-10",
+    "fecha_generacion": "2025-07-04T17:46:25.559Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 20,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-29",
+    "fecha_fin": "2025-07-10",
+    "fecha_generacion": "2025-07-04T23:53:15.588Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 21,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-29",
+    "fecha_fin": "2025-08-06",
+    "fecha_generacion": "2025-07-05T00:22:11.953Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 22,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-29",
+    "fecha_fin": "2025-08-06",
+    "fecha_generacion": "2025-07-05T00:45:31.913Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 23,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-29",
+    "fecha_fin": "2025-07-10",
+    "fecha_generacion": "2025-07-05T23:11:44.165Z",
+    "archivo_path": null
+  }
+},
+{
+  "model": "estadisticas.reporte",
+  "pk": 24,
+  "fields": {
+    "usuario": 1,
+    "formato": "PDF",
+    "tipo_reporte": "MENSUAL",
+    "fecha_inicio": "2025-06-29",
+    "fecha_fin": "2025-07-10",
+    "fecha_generacion": "2025-07-06T16:57:06.869Z",
+    "archivo_path": null
+  }
+}
+]

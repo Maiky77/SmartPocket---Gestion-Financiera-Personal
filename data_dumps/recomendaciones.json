@@ -1,0 +1,284 @@
+[
+{
+  "model": "recomendaciones.tiporecomendacion",
+  "pk": 1,
+  "fields": {
+    "nombre": "META_AHORRO",
+    "descripcion": "Meta de Ahorro Inteligente",
+    "activo": true
+  }
+},
+{
+  "model": "recomendaciones.tiporecomendacion",
+  "pk": 2,
+  "fields": {
+    "nombre": "ANALISIS_GASTOS",
+    "descripcion": "Análisis de Gastos",
+    "activo": true
+  }
+},
+{
+  "model": "recomendaciones.tiporecomendacion",
+  "pk": 3,
+  "fields": {
+    "nombre": "PATRON_TEMPORAL",
+    "descripcion": "Patrón de Gastos",
+    "activo": true
+  }
+},
+{
+  "model": "recomendaciones.tiporecomendacion",
+  "pk": 4,
+  "fields": {
+    "nombre": "COMPARATIVA",
+    "descripcion": "Comparativa con Promedio",
+    "activo": true
+  }
+},
+{
+  "model": "recomendaciones.tiporecomendacion",
+  "pk": 5,
+  "fields": {
+    "nombre": "HABITO_FINANCIERO",
+    "descripcion": "Hábito Financiero",
+    "activo": true
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 1,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 3,
+    "categoria_relacionada": null,
+    "titulo": "Comienza a Registrar tus Gastos",
+    "mensaje": "Para generar recomendaciones personalizadas precisas, comienza registrando tus gastos diarios. Incluso gastos pequeños pueden revelar patrones importantes para tu salud financiera.",
+    "valor_actual": null,
+    "valor_objetivo": null,
+    "ahorro_potencial": null,
+    "porcentaje_impacto": null,
+    "prioridad": "BAJA",
+    "fecha_generacion": "2025-07-04T13:01:15.182Z",
+    "fecha_expiracion": null,
+    "vista": true,
+    "aplicada": true,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 2,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 1,
+    "categoria_relacionada": null,
+    "titulo": "Meta de Ahorro Personalizada",
+    "mensaje": "Basado en tus gastos totales de S/. 800.00, puedes establecer una meta de ahorro de S/. 120.00 (15%). Esto es alcanzable optimizando gastos pequeños diarios.",
+    "valor_actual": "800.00",
+    "valor_objetivo": "680.00",
+    "ahorro_potencial": "120.00",
+    "porcentaje_impacto": "15.00",
+    "prioridad": "MEDIA",
+    "fecha_generacion": "2025-07-04T14:03:37.615Z",
+    "fecha_expiracion": null,
+    "vista": true,
+    "aplicada": true,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 3,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 3,
+    "categoria_relacionada": null,
+    "titulo": "Alto Gasto en Viajes",
+    "mensaje": "Tu categoría 'Viajes' representa 100.0% de tus gastos totales (S/. 800.00). Considera estrategias específicas para optimizar esta área.",
+    "valor_actual": "800.00",
+    "valor_objetivo": null,
+    "ahorro_potencial": null,
+    "porcentaje_impacto": "100.00",
+    "prioridad": "ALTA",
+    "fecha_generacion": "2025-07-04T14:03:37.621Z",
+    "fecha_expiracion": null,
+    "vista": false,
+    "aplicada": false,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 4,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 1,
+    "categoria_relacionada": null,
+    "titulo": "Meta de Ahorro Personalizada",
+    "mensaje": "Basado en tus gastos totales de S/. 307.50, puedes establecer una meta de ahorro de S/. 46.12 (15%). Esto es alcanzable optimizando gastos pequeños diarios.",
+    "valor_actual": "307.50",
+    "valor_objetivo": "261.38",
+    "ahorro_potencial": "46.12",
+    "porcentaje_impacto": "15.00",
+    "prioridad": "MEDIA",
+    "fecha_generacion": "2025-07-04T15:22:45.559Z",
+    "fecha_expiracion": null,
+    "vista": false,
+    "aplicada": false,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 5,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 2,
+    "categoria_relacionada": null,
+    "titulo": "Optimización de Gastos Frecuentes",
+    "mensaje": "Has registrado 8 gastos con un promedio de S/. 38.44 por transacción. Revisar tus gastos más frecuentes puede revelar oportunidades de ahorro significativo.",
+    "valor_actual": "38.44",
+    "valor_objetivo": null,
+    "ahorro_potencial": null,
+    "porcentaje_impacto": null,
+    "prioridad": "ALTA",
+    "fecha_generacion": "2025-07-04T15:22:45.565Z",
+    "fecha_expiracion": null,
+    "vista": false,
+    "aplicada": false,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 6,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 3,
+    "categoria_relacionada": null,
+    "titulo": "Alto Gasto en Comida",
+    "mensaje": "Tu categoría 'Comida' representa 32.7% de tus gastos totales (S/. 100.50). Considera estrategias específicas para optimizar esta área.",
+    "valor_actual": "100.50",
+    "valor_objetivo": null,
+    "ahorro_potencial": null,
+    "porcentaje_impacto": "32.68",
+    "prioridad": "ALTA",
+    "fecha_generacion": "2025-07-04T15:22:45.572Z",
+    "fecha_expiracion": null,
+    "vista": false,
+    "aplicada": false,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 7,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 1,
+    "categoria_relacionada": null,
+    "titulo": "Meta de Ahorro Personalizada",
+    "mensaje": "Basado en tus gastos totales de S/. 495.50, puedes establecer una meta de ahorro de S/. 74.33 (15%). Esto es alcanzable optimizando gastos pequeños diarios.",
+    "valor_actual": "495.50",
+    "valor_objetivo": "421.18",
+    "ahorro_potencial": "74.32",
+    "porcentaje_impacto": "15.00",
+    "prioridad": "MEDIA",
+    "fecha_generacion": "2025-07-04T21:55:15.973Z",
+    "fecha_expiracion": null,
+    "vista": false,
+    "aplicada": false,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 8,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 2,
+    "categoria_relacionada": null,
+    "titulo": "Optimización de Gastos Frecuentes",
+    "mensaje": "Has registrado 12 gastos con un promedio de S/. 41.29 por transacción. Revisar tus gastos más frecuentes puede revelar oportunidades de ahorro significativo.",
+    "valor_actual": "41.29",
+    "valor_objetivo": null,
+    "ahorro_potencial": null,
+    "porcentaje_impacto": null,
+    "prioridad": "ALTA",
+    "fecha_generacion": "2025-07-04T21:55:15.978Z",
+    "fecha_expiracion": null,
+    "vista": false,
+    "aplicada": false,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 9,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 1,
+    "categoria_relacionada": null,
+    "titulo": "Meta de Ahorro Personalizada",
+    "mensaje": "Basado en tus gastos totales de S/. 545.50, puedes establecer una meta de ahorro de S/. 81.83 (15%). Esto es alcanzable optimizando gastos pequeños diarios.",
+    "valor_actual": "545.50",
+    "valor_objetivo": "463.68",
+    "ahorro_potencial": "81.82",
+    "porcentaje_impacto": "15.00",
+    "prioridad": "MEDIA",
+    "fecha_generacion": "2025-07-04T23:53:01.547Z",
+    "fecha_expiracion": null,
+    "vista": false,
+    "aplicada": false,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 10,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 2,
+    "categoria_relacionada": null,
+    "titulo": "Optimización de Gastos Frecuentes",
+    "mensaje": "Has registrado 13 gastos con un promedio de S/. 41.96 por transacción. Revisar tus gastos más frecuentes puede revelar oportunidades de ahorro significativo.",
+    "valor_actual": "41.96",
+    "valor_objetivo": null,
+    "ahorro_potencial": null,
+    "porcentaje_impacto": null,
+    "prioridad": "ALTA",
+    "fecha_generacion": "2025-07-04T23:53:01.553Z",
+    "fecha_expiracion": null,
+    "vista": false,
+    "aplicada": false,
+    "activa": false,
+    "periodo_analisis_dias": 30,
+    "confianza_algoritmo": "80.00"
+  }
+},
+{
+  "model": "recomendaciones.recomendaciongenerada",
+  "pk": 11,
+  "fields": {
+    "usuario": 1,
+    "tipo_recomendacion": 1,
+    "categoria_relacionada": null,
+    "titulo": 

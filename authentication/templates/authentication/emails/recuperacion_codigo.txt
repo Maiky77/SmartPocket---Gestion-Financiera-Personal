@@ -1,0 +1,27 @@
+SmartPocket - Verificación de seguridad
+
+Estimado {{ usuario.getNombre }},
+
+Hemos recibido una solicitud de restablecimiento de contraseña para su cuenta.
+
+CÓDIGO DE VERIFICACIÓN: {{ token.codigo }}
+
+INFORMACIÓN IMPORTANTE:
+- Este código expira en 15 minutos
+- Solo puede ser utilizado una vez
+- Máximo 5 intentos de verificación
+- No comparta este código con terceros
+
+Si no solicitó este restablecimiento, puede ignorar este mensaje.
+Su cuenta permanece segura.
+
+DETALLES DE SEGURIDAD:
+- IP de solicitud: {{ token.ip_solicitud|default:"No disponible" }}
+- Fecha: {{ token.creado_en|date:"d/m/Y H:i" }}
+- Usuario: {{ usuario.email }}
+
+---
+SmartPocket - Sistema de gestión financiera personal
+Mensaje automático del sistema de seguridad
+
+© {{ now.year }} SmartPocket. Todos los derechos reservados.

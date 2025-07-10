@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Emails - SmartPocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+        }
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+        }
+        .test-section {
+            margin: 30px 0;
+        }
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background: #5a67d8;
+        }
+        .messages {
+            margin: 20px 0;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test de Emails - SmartPocket</h1>
+            <p>Vista temporal para probar el envío de emails</p>
+        </div>
+
+        <!-- Mensajes -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Información de configuración -->
+        <div class="config-section">
+            <h3>📧 Configuración Actual de Email</h3>
+            <div class="config-item">
+                <strong>Backend:</strong>
+                <span>{{ config_info.email_backend }}</span>
+            </div>
+            <div class="config-item">
+                <strong>Host:</strong>
+                <span>{{ config_info.email_host }}</span>
+            </div>
+            <div class="config-item">
+                <strong>Puerto:</strong>
+                <span>{{ config_info.email_port }}</span>
+            </div>
+            <div class="config-item">
+                <strong>TLS:</strong>
+                <span>{{ config_info.email_use_tls|yesno:"Sí,No" }}</span>
+            </div>
+            <div class="config-item">
+                <strong>Usuario:</strong>
+                <span>{{ config_info.email_host_user }}</span>
+            </div>
+            <div class="config-item">
+                <strong>From Email:</strong>
+                <span>{{ config_info.default_from_email }}</span>
+            </div>
+        </div>
+
+        <!-- Usuario actual -->
+        <div class="config-section">
+            <h3>👤 Usuario de Prueba</h3>
+            <div class="config-item">
+                <strong>Nombre:</strong>
+                <span>{{ usuario.getNombre }}</span>
+            </div>
+            <div class="config-item">
+                <strong>Email:</strong>
+                <span>{{ usuario.email }}</span>
+            </div>
+        </div>
+
+        <!-- Botones de prueba -->
+        <div class="test-section">
+            <h3>🚀 Probar Envío de Emails</h3>
+            <p>Los emails se enviarán a: <strong>{{ usuario.email }}</strong></p>
+            
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="tipo_email" value="recuperacion">
+                <button type="submit" class="test-button">
+                    🔐 Probar Email de Recuperación
+                </button>
+            </form>
+            
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="tipo_email" value="bienvenida">
+                <button type="submit" class="test-button">
+                    🎉 Probar Email de Bienvenida
+                </button>
+            </form>
+        </div>
+
+        <!-- Instrucciones -->
+        <div class="config-section">
+            <h3>📋 Instrucciones</h3>
+            <ol>
+                <li>Configura tu Gmail SMTP en el archivo .env</li>
+                <li>Reinicia el servidor Django</li>
+                <li>Usa los botones de arriba para probar</li>
+                <li>Revisa tu bandeja de entrada y spam</li>
+                <li>Elimina esta vista cuando todo funcione</li>
+            </ol>
+        </div>
+
+        <a href="{% url 'authentication:dashboard' %}" class="back-link">
+            ← Volver al Dashboard
+        </a>
+    </div>
+</body>
+</html>
