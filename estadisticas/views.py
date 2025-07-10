@@ -319,14 +319,13 @@ def obtener_gastos_por_categoria(usuario):
     }
 
 def obtener_tendencia_semanal(usuario):
-    """Obtiene gastos de las últimas 4 semanas para gráfico de barras - CORREGIDO"""
-    hoy = timezone.now().date()
-    hace_4_semanas = hoy - timedelta(weeks=4)
+    """
+    CORREGIDO: Obtiene gastos REALES agrupados por semana - SIN datos ficticios
+    """
+    # Obtener TODOS los gastos del usuario (sin límite de 4 semanas)
+    gastos = Gasto.objects.filter(id_usuario=usuario).order_by('fecha')
     
-    gastos = Gasto.objects.filter(
-        id_usuario=usuario,
-        fecha__gte=hace_4_semanas
-    ).order_by('fecha')
+    print(f"🔍 TENDENCIA SEMANAL - Gastos encontrados: {gastos.count()}")
     
     if not gastos.exists():
         return {
@@ -340,37 +339,60 @@ def obtener_tendencia_semanal(usuario):
             }]
         }
     
-    # Agrupar por semana
+    # Agrupar gastos REALES por semana
     gastos_por_semana = {}
+    
     for gasto in gastos:
         # Calcular el inicio de la semana (Lunes)
         inicio_semana = gasto.fecha - timedelta(days=gasto.fecha.weekday())
-        semana_key = inicio_semana.strftime('%Y-%m-%d')
+        fin_semana = inicio_semana + timedelta(days=6)
         
-        if semana_key not in gastos_por_semana:
-            gastos_por_semana[semana_key] = 0
+        # Crear etiqueta descriptiva con fechas reales
+        semana_label = f"{inicio_semana.strftime('%d/%m')} - {fin_semana.strftime('%d/%m')}"
         
-        gastos_por_semana[semana_key] += float(gasto.monto)
-    
-    # Ordenar por fecha y tomar últimas 4 semanas
-    semanas_ordenadas = sorted(gastos_por_semana.items())[-4:]
-    
-    labels = []
-    data = []
-    for semana_inicio, total in semanas_ordenadas:
-        fecha_inicio = datetime.strptime(semana_inicio, '%Y-%m-%d').date()
-        fecha_fin = fecha_inicio + timedelta(days=6)
-        labels.append(f"{fecha_inicio.strftime('%d/%m')} - {fecha_fin.strftime('%d/%m')}")
-        data.append(round(total, 2))
-    
-    # Si no hay suficientes semanas, rellenar con datos actuales
-    if len(labels) < 4:
-        total_actual = sum(data) if data else 0
-        promedio = total_actual / len(data) if data else 0
+        if semana_label not in gastos_por_semana:
+            gastos_por_semana[semana_label] = 0
         
-        while len(labels) < 4:
-            labels.insert(0, f"Semana {4-len(labels)}")
-            data.insert(0, round(promedio * 0.8, 2))  # Datos estimados
+        gastos_por_semana[semana_label] += float(gasto.monto)
+        
+        print(f"   📅 {gasto.fecha} -> Semana: {semana_label} -> S/. {gasto.monto}")
+    
+    # IMPORTANTE: Solo mostrar semanas que REALMENTE tienen gastos
+    if not gastos_por_semana:
+        return {
+            'labels': [],
+            'datasets': [{
+                'label': 'Gastos Semanales (S/.)',
+                'data': [],
+                'backgroundColor': 'rgba(102, 126, 234, 0.8)',
+                'borderColor': 'rgb(102, 126, 234)',
+                'borderWidth': 1
+            }]
+        }
+    
+    # Ordenar por la fecha real de inicio de semana
+    semanas_ordenadas = []
+    for semana_label, total in gastos_por_semana.items():
+        # Extraer fecha de inicio para ordenar
+        fecha_inicio_str = semana_label.split(' - ')[0]
+        # Asumir año actual para el ordenamiento
+        try:
+            fecha_inicio = datetime.strptime(f"{fecha_inicio_str}/{timezone.now().year}", '%d/%m/%Y').date()
+            semanas_ordenadas.append((fecha_inicio, semana_label, total))
+        except:
+            semanas_ordenadas.append((timezone.now().date(), semana_label, total))
+    
+    # Ordenar por fecha
+    semanas_ordenadas.sort(key=lambda x: x[0])
+    
+    # Extraer labels y data en orden
+    labels = [item[1] for item in semanas_ordenadas]
+    data = [round(item[2], 2) for item in semanas_ordenadas]
+    
+    print(f"✅ RESULTADO FINAL:")
+    print(f"   📊 Semanas con gastos: {len(labels)}")
+    print(f"   📅 Labels: {labels}")
+    print(f"   💰 Data: {data}")
     
     return {
         'labels': labels,
