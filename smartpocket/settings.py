@@ -96,7 +96,7 @@ WSGI_APPLICATION = 'smartpocket.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('MYSQL_DB'),
+        'NAME': os.environ.get('MYSQL_DATABASE', config('MYSQL_DB', 'smartpocket')),
         'USER': config('MYSQL_USER'),
         'PASSWORD': config('MYSQL_PASSWORD'),
         'HOST': config('MYSQL_HOST'),
