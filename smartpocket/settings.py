@@ -289,3 +289,58 @@ LOGGING = {
 logs_dir = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(logs_dir):
     os.makedirs(logs_dir)
+
+
+# ==================== CONFIGURACIÓN PARA RAILWAY ====================
+import os
+
+# Archivos estáticos para producción
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Middleware para archivos estáticos (AGREGAR al inicio de MIDDLEWARE)
+if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+# ==================== CONFIGURACIÓN PARA RAILWAY ====================
+if 'RAILWAY_ENVIRONMENT' in os.environ or 'RAILWAY_STATIC_URL' in os.environ:
+    print("🚂 DETECTADO ENTORNO RAILWAY - Configurando para producción...")
+    
+    # Base de datos Railway (MySQL automático)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE', 'railway'),
+            'USER': os.environ.get('MYSQL_USER', 'root'),
+            'PASSWORD': os.environ.get('MYSQL_PASSWORD', ''),
+            'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
+            'PORT': os.environ.get('MYSQL_PORT', '3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+                'collation': 'utf8mb4_unicode_ci',
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    }
+    
+    # Configuraciones de seguridad para producción
+    DEBUG = False
+    ALLOWED_HOSTS = [
+        '.railway.app', 
+        '.up.railway.app',
+        'smartpocket-production.up.railway.app'  # Tu dominio específico
+    ]
+    
+    # CSRF y seguridad
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.railway.app',
+        'https://*.up.railway.app'
+    ]
+    
+    # Configuración de archivos estáticos para Railway
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
+    print("✅ RAILWAY configurado correctamente")
+
+else:
+    print("💻 ENTORNO LOCAL - Usando configuración de desarrollo")
