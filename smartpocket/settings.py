@@ -14,6 +14,7 @@ from pathlib import Path
 from decouple import config
 from decouple import config, Csv
 import pymysql
+import os
 
 pymysql.install_as_MySQLdb()
 
@@ -96,24 +97,23 @@ WSGI_APPLICATION = 'smartpocket.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DATABASE', config('MYSQL_DATABASE', 'smartpocket')),
-        'USER': config('MYSQL_USER'),
-        'PASSWORD': config('MYSQL_PASSWORD'),
-        'HOST': config('MYSQL_HOST'),
-        'PORT': config('MYSQL_PORT'),
+        'NAME': os.environ.get('MYSQL_DATABASE', 'smartpocket'),
+        'USER': os.environ.get('MYSQL_USER'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+        'HOST': os.environ.get('MYSQL_HOST'),
+        'PORT': os.environ.get('MYSQL_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
             'collation': 'utf8mb4_unicode_ci',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            # FORZAR COMPATIBILIDAD CON MARIADB 10.4
             'sql_mode': 'TRADITIONAL',
         },
-        # DESACTIVAR VERIFICACIÓN DE VERSIÓN
         'TEST': {
             'ENGINE': 'django.db.backends.mysql',
         }
     }
 }
+
 
 # AGREGAR ESTA CONFIGURACIÓN AL FINAL DEL ARCHIVO:
 import django.db.backends.mysql.base
