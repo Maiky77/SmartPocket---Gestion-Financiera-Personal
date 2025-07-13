@@ -5,6 +5,22 @@ from django.utils import timezone
 import random
 import string
 from datetime import timedelta
+import uuid
+
+def usuario_foto_path(instance, filename):
+    """
+    Genera un path único para cada usuario para evitar conflictos
+    Formato: perfiles/usuario_123/foto_uuid.jpg
+    """
+    # Obtener extensión del archivo
+    import os
+    ext = os.path.splitext(filename)[1].lower()
+    
+    # Generar nombre único con UUID
+    unique_filename = f"perfil_{uuid.uuid4().hex[:8]}{ext}"
+    
+    # Crear path único por usuario
+    return f'perfiles/usuario_{instance.id}/{unique_filename}'
 
 class Usuario(AbstractUser):
     """Modelo de usuario personalizado para SmartPocket"""
@@ -14,9 +30,9 @@ class Usuario(AbstractUser):
     telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name="Teléfono")
     fecha_registro = models.DateTimeField(default=timezone.now, verbose_name="Fecha de Registro")
     
-    # NUEVOS CAMPOS PARA EL PERFIL
+    # CAMPO CORREGIDO PARA FOTOS ÚNICAS
     foto_perfil = models.ImageField(
-        upload_to='perfiles/', 
+        upload_to=usuario_foto_path,  # ← USAR FUNCIÓN PERSONALIZADA
         blank=True, 
         null=True, 
         verbose_name="Foto de Perfil",

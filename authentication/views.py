@@ -427,7 +427,7 @@ def manejar_cambio_contrasena(request, usuario):
 
 def procesar_foto_perfil(imagen, username):
     """
-    Procesa y redimensiona la foto de perfil
+    Procesa y redimensiona la foto de perfil - VERSIÓN SIMPLIFICADA
     """
     try:
         # Abrir imagen con PIL
@@ -456,11 +456,8 @@ def procesar_foto_perfil(imagen, username):
         img.save(output, format='JPEG', quality=85, optimize=True)
         output.seek(0)
         
-        # Crear nombre único para el archivo
-        filename = f'perfiles/{username}_perfil.jpg'
-        
-        # Guardar en el storage
-        return default_storage.save(filename, ContentFile(output.read()))
+        # ✅ SIMPLIFICADO: Django se encarga del nombre único
+        return ContentFile(output.read(), name='perfil.jpg')
         
     except Exception as e:
         print(f"Error procesando imagen: {e}")
@@ -1000,7 +997,7 @@ Funcionalidades disponibles:
 - Presupuestos inteligentes
 - Recomendaciones personalizadas
 
-Acceda a su cuenta en: http://smart-pocket.loc:8001
+Acceda a su cuenta en: https://smartpocket-gestion-financiera-personal-production.up.railway.app
 
 Detalles de la cuenta:
 - Usuario: {usuario.email}

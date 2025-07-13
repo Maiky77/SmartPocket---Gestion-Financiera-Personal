@@ -302,11 +302,17 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
-# ==================== CONFIGURACIÓN PARA RAILWAY ====================
-if 'RAILWAY_ENVIRONMENT' in os.environ or 'RAILWAY_STATIC_URL' in os.environ:
-    print("🚂 DETECTADO ENTORNO RAILWAY - Configurando para producción...")
-    
-    # Base de datos Railway (MySQL automático)
+# smartpocket/settings.py
+# ... (otras configuraciones)
+
+# ==================== CONFIGURACIÓN DE BASE DE DATOS MEJORADA ====================
+
+import os
+
+# Verificar si estamos en Railway
+if 'RAILWAY_ENVIRONMENT' in os.environ or os.environ.get('MYSQL_HOST'):
+    print("🚂 DETECTADO ENTORNO RAILWAY - Usando MySQL...")
+    # Base de datos Railway (MySQL)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -323,24 +329,117 @@ if 'RAILWAY_ENVIRONMENT' in os.environ or 'RAILWAY_STATIC_URL' in os.environ:
         }
     }
     
-    # Configuraciones de seguridad para producción
+    # Configuraciones para Railway
     DEBUG = False
     ALLOWED_HOSTS = [
         '.railway.app', 
         '.up.railway.app',
-        'smartpocket-production.up.railway.app'  # Tu dominio específico
+        'smartpocket-gestion-financiera-personal-production.up.railway.app'
     ]
     
-    # CSRF y seguridad
     CSRF_TRUSTED_ORIGINS = [
         'https://*.railway.app',
         'https://*.up.railway.app'
     ]
     
-    # Configuración de archivos estáticos para Railway
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    
-    print("✅ RAILWAY configurado correctamente")
+    print("✅ RAILWAY configurado con MySQL")
 
 else:
-    print("💻 ENTORNO LOCAL - Usando configuración de desarrollo")
+    print("💻 ENTORNO LOCAL - Usando SQLite...")
+    # Base de datos local (SQLite)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    
+    # Configuraciones para desarrollo local
+    DEBUG = True
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'smart-pocket.loc']
+    
+    print("✅ LOCAL configurado con SQLite")
+
+# ==================== RESTO DE LA CONFIGURACIÓN ====================
+# (El resto de tu settings.py permanece igual)
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración del modelo de usuario personalizado
+AUTH_USER_MODEL = 'authentication.Usuario'
+
+# Configuración de login/logout URLs
+LOGIN_URL = 'authentication:login'
+LOGIN_REDIRECT_URL = 'authentication:dashboard'
+LOGOUT_REDIRECT_URL = 'authentication:login'
+
+# Crear directorio media si no existe
+if not os.path.exists(MEDIA_ROOT):
+    os.makedirs(MEDIA_ROOT)
+    os.makedirs(MEDIA_ROOT / 'perfiles', exist_ok=True)
+
+# ==================== CONFIGURACIÓN DE EMAIL ====================
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = f'SmartPocket <{config("EMAIL_HOST_USER", default="noreply@smartpocket.com")}>'
+
+# Fallback para desarrollo
+if DEBUG and not config('EMAIL_HOST_USER', default=''):
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'SmartPocket <noreply@smartpocket.com>'
+    print("⚠️ MODO DESARROLLO: Emails se mostrarán en consola")
+
+# ==================== CONFIGURACIONES ADICIONALES ====================
+# Middleware para archivos estáticos
+if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+# Solo aplicar configuraciones MySQL si estamos usando MySQL
+if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+    # FORZAR COMPATIBILIDAD CON MARIADB 10.4
+    import django.db.backends.mysql.base
+    django.db.backends.mysql.base.DatabaseWrapper.check_database_version_supported = lambda self: None
+    
+    # DESACTIVAR RETURNING CLAUSE PARA MARIADB 10.4
+    from django.db.backends.mysql.features import DatabaseFeatures
+    DatabaseFeatures.can_return_columns_from_insert = False
+    DatabaseFeatures.can_return_rows_from_bulk_insert = False
