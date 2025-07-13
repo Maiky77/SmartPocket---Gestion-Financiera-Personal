@@ -305,14 +305,44 @@ if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
 # smartpocket/settings.py
 # ... (otras configuraciones)
 
-# ==================== CONFIGURACIÓN DE BASE DE DATOS MEJORADA ====================
+# smartpocket/settings.py
+
+# ==================== CONFIGURACIÓN DE ARCHIVOS MEDIA MEJORADA ====================
 
 import os
 
-# Verificar si estamos en Railway
+# CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS Y MEDIA
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+] if os.path.exists(os.path.join(BASE_DIR, 'static')) else []
+
+# CONFIGURACIÓN DE MEDIA FILES
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Crear directorios si no existen
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+os.makedirs(os.path.join(MEDIA_ROOT, 'perfiles'), exist_ok=True)
+
+# ==================== CONFIGURACIÓN ESPECÍFICA PARA RAILWAY ====================
+
 if 'RAILWAY_ENVIRONMENT' in os.environ or os.environ.get('MYSQL_HOST'):
-    print("🚂 DETECTADO ENTORNO RAILWAY - Usando MySQL...")
-    # Base de datos Railway (MySQL)
+    print("🚂 RAILWAY DETECTADO - Configurando archivos media...")
+    
+    # AGREGAR WHITENOISE PARA SERVIR ARCHIVOS MEDIA TAMBIÉN
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    
+    # CONFIGURAR WHITENOISE PARA SERVIR MEDIA Y STATIC
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
+    # ✅ IMPORTANTE: Permitir a WhiteNoise servir archivos MEDIA
+    WHITENOISE_USE_FINDERS = True
+    WHITENOISE_AUTOREFRESH = True
+    
+    # Configuración de base de datos MySQL
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -329,7 +359,7 @@ if 'RAILWAY_ENVIRONMENT' in os.environ or os.environ.get('MYSQL_HOST'):
         }
     }
     
-    # Configuraciones para Railway
+    # Configuraciones de producción
     DEBUG = False
     ALLOWED_HOSTS = [
         '.railway.app', 
@@ -342,11 +372,12 @@ if 'RAILWAY_ENVIRONMENT' in os.environ or os.environ.get('MYSQL_HOST'):
         'https://*.up.railway.app'
     ]
     
-    print("✅ RAILWAY configurado con MySQL")
+    print("✅ RAILWAY configurado con MySQL, WhiteNoise y soporte para MEDIA")
 
 else:
-    print("💻 ENTORNO LOCAL - Usando SQLite...")
-    # Base de datos local (SQLite)
+    print("💻 ENTORNO LOCAL - Configuración de desarrollo")
+    
+    # Base de datos SQLite para desarrollo
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -354,11 +385,29 @@ else:
         }
     }
     
-    # Configuraciones para desarrollo local
+    # Configuraciones de desarrollo
     DEBUG = True
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'smart-pocket.loc']
     
     print("✅ LOCAL configurado con SQLite")
+
+# ==================== LOGGING PARA DEBUG ====================
+if 'RAILWAY_ENVIRONMENT' in os.environ:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+            },
+        },
+    }
 
 # ==================== RESTO DE LA CONFIGURACIÓN ====================
 # (El resto de tu settings.py permanece igual)
