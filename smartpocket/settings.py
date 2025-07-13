@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'authentication',
-    'gastos',
+    'gastos.apps.GastosConfig',
     'presupuestos',
     'recomendaciones',
     'estadisticas',
